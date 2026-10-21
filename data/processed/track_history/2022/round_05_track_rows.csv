@@ -1,0 +1,21 @@
+Season,RoundNumber,EventName,TrackId,TrackName,TrackHistorySource,DriverId,StartOrder,ActualPosition,RaceStatus,CleanMAEEligible
+2022,5,Miami Grand Prix,151,Miami,FASTF1_RACE_RESULTS,max_verstappen,3.0,1.0,Finished,True
+2022,5,Miami Grand Prix,151,Miami,FASTF1_RACE_RESULTS,leclerc,1.0,2.0,Finished,True
+2022,5,Miami Grand Prix,151,Miami,FASTF1_RACE_RESULTS,sainz,2.0,3.0,Finished,True
+2022,5,Miami Grand Prix,151,Miami,FASTF1_RACE_RESULTS,perez,4.0,4.0,Finished,True
+2022,5,Miami Grand Prix,151,Miami,FASTF1_RACE_RESULTS,russell,12.0,5.0,Finished,True
+2022,5,Miami Grand Prix,151,Miami,FASTF1_RACE_RESULTS,hamilton,6.0,6.0,Finished,True
+2022,5,Miami Grand Prix,151,Miami,FASTF1_RACE_RESULTS,bottas,5.0,7.0,Finished,True
+2022,5,Miami Grand Prix,151,Miami,FASTF1_RACE_RESULTS,ocon,20.0,8.0,Finished,True
+2022,5,Miami Grand Prix,151,Miami,FASTF1_RACE_RESULTS,albon,18.0,9.0,Finished,True
+2022,5,Miami Grand Prix,151,Miami,FASTF1_RACE_RESULTS,stroll,,10.0,Finished,False
+2022,5,Miami Grand Prix,151,Miami,FASTF1_RACE_RESULTS,alonso,11.0,11.0,Finished,True
+2022,5,Miami Grand Prix,151,Miami,FASTF1_RACE_RESULTS,tsunoda,9.0,12.0,Finished,True
+2022,5,Miami Grand Prix,151,Miami,FASTF1_RACE_RESULTS,ricciardo,14.0,13.0,Finished,True
+2022,5,Miami Grand Prix,151,Miami,FASTF1_RACE_RESULTS,latifi,19.0,14.0,Finished,True
+2022,5,Miami Grand Prix,151,Miami,FASTF1_RACE_RESULTS,mick_schumacher,15.0,15.0,Finished,True
+2022,5,Miami Grand Prix,151,Miami,FASTF1_RACE_RESULTS,kevin_magnussen,16.0,16.0,Front wing,False
+2022,5,Miami Grand Prix,151,Miami,FASTF1_RACE_RESULTS,vettel,,17.0,Collision,False
+2022,5,Miami Grand Prix,151,Miami,FASTF1_RACE_RESULTS,gasly,7.0,18.0,Suspension,False
+2022,5,Miami Grand Prix,151,Miami,FASTF1_RACE_RESULTS,norris,8.0,19.0,Collision,False
+2022,5,Miami Grand Prix,151,Miami,FASTF1_RACE_RESULTS,zhou,17.0,20.0,Water leak,False

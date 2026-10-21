@@ -1,0 +1,21 @@
+Season,RoundNumber,EventName,TrackId,TrackName,TrackHistorySource,DriverId,StartOrder,ActualPosition,RaceStatus,CleanMAEEligible
+2025,18,Singapore Grand Prix,61,Singapore,FASTF1_RACE_RESULTS,russell,1.0,1.0,Finished,True
+2025,18,Singapore Grand Prix,61,Singapore,FASTF1_RACE_RESULTS,max_verstappen,2.0,2.0,Finished,True
+2025,18,Singapore Grand Prix,61,Singapore,FASTF1_RACE_RESULTS,norris,5.0,3.0,Finished,True
+2025,18,Singapore Grand Prix,61,Singapore,FASTF1_RACE_RESULTS,piastri,3.0,4.0,Finished,True
+2025,18,Singapore Grand Prix,61,Singapore,FASTF1_RACE_RESULTS,antonelli,4.0,5.0,Finished,True
+2025,18,Singapore Grand Prix,61,Singapore,FASTF1_RACE_RESULTS,leclerc,7.0,6.0,Finished,True
+2025,18,Singapore Grand Prix,61,Singapore,FASTF1_RACE_RESULTS,alonso,10.0,7.0,Finished,True
+2025,18,Singapore Grand Prix,61,Singapore,FASTF1_RACE_RESULTS,hamilton,6.0,8.0,Finished,True
+2025,18,Singapore Grand Prix,61,Singapore,FASTF1_RACE_RESULTS,bearman,9.0,9.0,Finished,True
+2025,18,Singapore Grand Prix,61,Singapore,FASTF1_RACE_RESULTS,sainz,18.0,10.0,Lapped,True
+2025,18,Singapore Grand Prix,61,Singapore,FASTF1_RACE_RESULTS,hadjar,8.0,11.0,Lapped,True
+2025,18,Singapore Grand Prix,61,Singapore,FASTF1_RACE_RESULTS,tsunoda,13.0,12.0,Lapped,True
+2025,18,Singapore Grand Prix,61,Singapore,FASTF1_RACE_RESULTS,stroll,15.0,13.0,Lapped,True
+2025,18,Singapore Grand Prix,61,Singapore,FASTF1_RACE_RESULTS,albon,20.0,14.0,Lapped,True
+2025,18,Singapore Grand Prix,61,Singapore,FASTF1_RACE_RESULTS,lawson,12.0,15.0,Lapped,True
+2025,18,Singapore Grand Prix,61,Singapore,FASTF1_RACE_RESULTS,colapinto,16.0,16.0,Lapped,True
+2025,18,Singapore Grand Prix,61,Singapore,FASTF1_RACE_RESULTS,bortoleto,14.0,17.0,Lapped,True
+2025,18,Singapore Grand Prix,61,Singapore,FASTF1_RACE_RESULTS,ocon,17.0,18.0,Lapped,True
+2025,18,Singapore Grand Prix,61,Singapore,FASTF1_RACE_RESULTS,gasly,19.0,19.0,Lapped,True
+2025,18,Singapore Grand Prix,61,Singapore,FASTF1_RACE_RESULTS,hulkenberg,11.0,20.0,Lapped,True

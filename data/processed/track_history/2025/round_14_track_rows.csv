@@ -1,0 +1,21 @@
+Season,RoundNumber,EventName,TrackId,TrackName,TrackHistorySource,DriverId,StartOrder,ActualPosition,RaceStatus,CleanMAEEligible
+2025,14,Hungarian Grand Prix,4,Hungaroring,FASTF1_RACE_RESULTS,norris,3.0,1.0,Finished,True
+2025,14,Hungarian Grand Prix,4,Hungaroring,FASTF1_RACE_RESULTS,piastri,2.0,2.0,Finished,True
+2025,14,Hungarian Grand Prix,4,Hungaroring,FASTF1_RACE_RESULTS,russell,4.0,3.0,Finished,True
+2025,14,Hungarian Grand Prix,4,Hungaroring,FASTF1_RACE_RESULTS,leclerc,1.0,4.0,Finished,True
+2025,14,Hungarian Grand Prix,4,Hungaroring,FASTF1_RACE_RESULTS,alonso,5.0,5.0,Finished,True
+2025,14,Hungarian Grand Prix,4,Hungaroring,FASTF1_RACE_RESULTS,bortoleto,7.0,6.0,Finished,True
+2025,14,Hungarian Grand Prix,4,Hungaroring,FASTF1_RACE_RESULTS,stroll,6.0,7.0,Finished,True
+2025,14,Hungarian Grand Prix,4,Hungaroring,FASTF1_RACE_RESULTS,lawson,9.0,8.0,Finished,True
+2025,14,Hungarian Grand Prix,4,Hungaroring,FASTF1_RACE_RESULTS,max_verstappen,8.0,9.0,Finished,True
+2025,14,Hungarian Grand Prix,4,Hungaroring,FASTF1_RACE_RESULTS,antonelli,15.0,10.0,Lapped,True
+2025,14,Hungarian Grand Prix,4,Hungaroring,FASTF1_RACE_RESULTS,hadjar,10.0,11.0,Lapped,True
+2025,14,Hungarian Grand Prix,4,Hungaroring,FASTF1_RACE_RESULTS,hamilton,12.0,12.0,Lapped,True
+2025,14,Hungarian Grand Prix,4,Hungaroring,FASTF1_RACE_RESULTS,hulkenberg,18.0,13.0,Lapped,True
+2025,14,Hungarian Grand Prix,4,Hungaroring,FASTF1_RACE_RESULTS,sainz,13.0,14.0,Lapped,True
+2025,14,Hungarian Grand Prix,4,Hungaroring,FASTF1_RACE_RESULTS,albon,19.0,15.0,Lapped,True
+2025,14,Hungarian Grand Prix,4,Hungaroring,FASTF1_RACE_RESULTS,ocon,17.0,16.0,Lapped,True
+2025,14,Hungarian Grand Prix,4,Hungaroring,FASTF1_RACE_RESULTS,tsunoda,20.0,17.0,Lapped,True
+2025,14,Hungarian Grand Prix,4,Hungaroring,FASTF1_RACE_RESULTS,colapinto,14.0,18.0,Lapped,True
+2025,14,Hungarian Grand Prix,4,Hungaroring,FASTF1_RACE_RESULTS,gasly,16.0,19.0,Lapped,True
+2025,14,Hungarian Grand Prix,4,Hungaroring,FASTF1_RACE_RESULTS,bearman,11.0,20.0,Retired,False

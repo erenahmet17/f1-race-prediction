@@ -1,0 +1,21 @@
+Season,RoundNumber,EventName,TrackId,TrackName,TrackHistorySource,DriverId,StartOrder,ActualPosition,RaceStatus,CleanMAEEligible
+2023,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,max_verstappen,1.0,1.0,Finished,True
+2023,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,hamilton,3.0,2.0,Finished,True
+2023,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,alonso,4.0,3.0,Finished,True
+2023,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,stroll,6.0,4.0,Finished,True
+2023,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,perez,20.0,5.0,Finished,True
+2023,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,norris,13.0,6.0,Finished,True
+2023,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,hulkenberg,10.0,7.0,Finished,True
+2023,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,piastri,16.0,8.0,Finished,True
+2023,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,zhou,17.0,9.0,Finished,True
+2023,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,tsunoda,12.0,10.0,Finished,True
+2023,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,bottas,19.0,11.0,Finished,True
+2023,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,sainz,5.0,12.0,Finished,True
+2023,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,gasly,9.0,13.0,Retired,False
+2023,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,ocon,11.0,14.0,Retired,False
+2023,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,de_vries,15.0,15.0,Retired,False
+2023,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,sargeant,18.0,16.0,Retired,False
+2023,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,kevin_magnussen,14.0,17.0,Retired,False
+2023,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,russell,2.0,18.0,Retired,False
+2023,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,albon,8.0,19.0,Retired,False
+2023,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,leclerc,7.0,20.0,Retired,False

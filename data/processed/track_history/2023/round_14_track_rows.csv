@@ -1,0 +1,21 @@
+Season,RoundNumber,EventName,TrackId,TrackName,TrackHistorySource,DriverId,StartOrder,ActualPosition,RaceStatus,CleanMAEEligible
+2023,14,Italian Grand Prix,39,Monza,FASTF1_RACE_RESULTS,max_verstappen,2.0,1.0,Finished,True
+2023,14,Italian Grand Prix,39,Monza,FASTF1_RACE_RESULTS,perez,5.0,2.0,Finished,True
+2023,14,Italian Grand Prix,39,Monza,FASTF1_RACE_RESULTS,sainz,1.0,3.0,Finished,True
+2023,14,Italian Grand Prix,39,Monza,FASTF1_RACE_RESULTS,leclerc,3.0,4.0,Finished,True
+2023,14,Italian Grand Prix,39,Monza,FASTF1_RACE_RESULTS,russell,4.0,5.0,Finished,True
+2023,14,Italian Grand Prix,39,Monza,FASTF1_RACE_RESULTS,hamilton,8.0,6.0,Finished,True
+2023,14,Italian Grand Prix,39,Monza,FASTF1_RACE_RESULTS,albon,6.0,7.0,Finished,True
+2023,14,Italian Grand Prix,39,Monza,FASTF1_RACE_RESULTS,norris,9.0,8.0,Finished,True
+2023,14,Italian Grand Prix,39,Monza,FASTF1_RACE_RESULTS,alonso,10.0,9.0,Finished,True
+2023,14,Italian Grand Prix,39,Monza,FASTF1_RACE_RESULTS,bottas,14.0,10.0,Finished,True
+2023,14,Italian Grand Prix,39,Monza,FASTF1_RACE_RESULTS,lawson,12.0,11.0,Finished,True
+2023,14,Italian Grand Prix,39,Monza,FASTF1_RACE_RESULTS,piastri,7.0,12.0,Finished,True
+2023,14,Italian Grand Prix,39,Monza,FASTF1_RACE_RESULTS,sargeant,15.0,13.0,Finished,True
+2023,14,Italian Grand Prix,39,Monza,FASTF1_RACE_RESULTS,zhou,16.0,14.0,Finished,True
+2023,14,Italian Grand Prix,39,Monza,FASTF1_RACE_RESULTS,gasly,17.0,15.0,Finished,True
+2023,14,Italian Grand Prix,39,Monza,FASTF1_RACE_RESULTS,stroll,20.0,16.0,Finished,True
+2023,14,Italian Grand Prix,39,Monza,FASTF1_RACE_RESULTS,hulkenberg,13.0,17.0,Lapped,True
+2023,14,Italian Grand Prix,39,Monza,FASTF1_RACE_RESULTS,kevin_magnussen,19.0,18.0,Lapped,True
+2023,14,Italian Grand Prix,39,Monza,FASTF1_RACE_RESULTS,ocon,18.0,19.0,Retired,False
+2023,14,Italian Grand Prix,39,Monza,FASTF1_RACE_RESULTS,tsunoda,11.0,20.0,Did not start,False

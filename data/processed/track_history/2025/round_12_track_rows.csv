@@ -1,0 +1,21 @@
+Season,RoundNumber,EventName,TrackId,TrackName,TrackHistorySource,DriverId,StartOrder,ActualPosition,RaceStatus,CleanMAEEligible
+2025,12,British Grand Prix,2,Silverstone,FASTF1_RACE_RESULTS,norris,3.0,1.0,Finished,True
+2025,12,British Grand Prix,2,Silverstone,FASTF1_RACE_RESULTS,piastri,2.0,2.0,Finished,True
+2025,12,British Grand Prix,2,Silverstone,FASTF1_RACE_RESULTS,hulkenberg,19.0,3.0,Finished,True
+2025,12,British Grand Prix,2,Silverstone,FASTF1_RACE_RESULTS,hamilton,5.0,4.0,Finished,True
+2025,12,British Grand Prix,2,Silverstone,FASTF1_RACE_RESULTS,max_verstappen,1.0,5.0,Finished,True
+2025,12,British Grand Prix,2,Silverstone,FASTF1_RACE_RESULTS,gasly,8.0,6.0,Finished,True
+2025,12,British Grand Prix,2,Silverstone,FASTF1_RACE_RESULTS,stroll,17.0,7.0,Finished,True
+2025,12,British Grand Prix,2,Silverstone,FASTF1_RACE_RESULTS,albon,13.0,8.0,Finished,True
+2025,12,British Grand Prix,2,Silverstone,FASTF1_RACE_RESULTS,alonso,7.0,9.0,Finished,True
+2025,12,British Grand Prix,2,Silverstone,FASTF1_RACE_RESULTS,russell,4.0,10.0,Finished,True
+2025,12,British Grand Prix,2,Silverstone,FASTF1_RACE_RESULTS,bearman,18.0,11.0,Finished,True
+2025,12,British Grand Prix,2,Silverstone,FASTF1_RACE_RESULTS,sainz,9.0,12.0,Finished,True
+2025,12,British Grand Prix,2,Silverstone,FASTF1_RACE_RESULTS,ocon,14.0,13.0,Finished,True
+2025,12,British Grand Prix,2,Silverstone,FASTF1_RACE_RESULTS,leclerc,6.0,14.0,Finished,True
+2025,12,British Grand Prix,2,Silverstone,FASTF1_RACE_RESULTS,tsunoda,11.0,15.0,Lapped,True
+2025,12,British Grand Prix,2,Silverstone,FASTF1_RACE_RESULTS,antonelli,10.0,16.0,Retired,False
+2025,12,British Grand Prix,2,Silverstone,FASTF1_RACE_RESULTS,hadjar,12.0,17.0,Retired,False
+2025,12,British Grand Prix,2,Silverstone,FASTF1_RACE_RESULTS,bortoleto,16.0,18.0,Retired,False
+2025,12,British Grand Prix,2,Silverstone,FASTF1_RACE_RESULTS,lawson,15.0,19.0,Retired,False
+2025,12,British Grand Prix,2,Silverstone,FASTF1_RACE_RESULTS,colapinto,20.0,20.0,Did not start,False

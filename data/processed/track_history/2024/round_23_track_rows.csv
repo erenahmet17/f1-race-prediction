@@ -1,0 +1,21 @@
+Season,RoundNumber,EventName,TrackId,TrackName,TrackHistorySource,DriverId,StartOrder,ActualPosition,RaceStatus,CleanMAEEligible
+2024,23,Qatar Grand Prix,150,Lusail,FASTF1_RACE_RESULTS,max_verstappen,2.0,1.0,Finished,True
+2024,23,Qatar Grand Prix,150,Lusail,FASTF1_RACE_RESULTS,leclerc,5.0,2.0,Finished,True
+2024,23,Qatar Grand Prix,150,Lusail,FASTF1_RACE_RESULTS,piastri,4.0,3.0,Finished,True
+2024,23,Qatar Grand Prix,150,Lusail,FASTF1_RACE_RESULTS,russell,1.0,4.0,Finished,True
+2024,23,Qatar Grand Prix,150,Lusail,FASTF1_RACE_RESULTS,gasly,11.0,5.0,Finished,True
+2024,23,Qatar Grand Prix,150,Lusail,FASTF1_RACE_RESULTS,sainz,7.0,6.0,Finished,True
+2024,23,Qatar Grand Prix,150,Lusail,FASTF1_RACE_RESULTS,alonso,8.0,7.0,Finished,True
+2024,23,Qatar Grand Prix,150,Lusail,FASTF1_RACE_RESULTS,zhou,12.0,8.0,Finished,True
+2024,23,Qatar Grand Prix,150,Lusail,FASTF1_RACE_RESULTS,kevin_magnussen,10.0,9.0,Finished,True
+2024,23,Qatar Grand Prix,150,Lusail,FASTF1_RACE_RESULTS,norris,3.0,10.0,Finished,True
+2024,23,Qatar Grand Prix,150,Lusail,FASTF1_RACE_RESULTS,bottas,13.0,11.0,Finished,True
+2024,23,Qatar Grand Prix,150,Lusail,FASTF1_RACE_RESULTS,hamilton,6.0,12.0,Finished,True
+2024,23,Qatar Grand Prix,150,Lusail,FASTF1_RACE_RESULTS,tsunoda,14.0,13.0,Finished,True
+2024,23,Qatar Grand Prix,150,Lusail,FASTF1_RACE_RESULTS,lawson,17.0,14.0,Finished,True
+2024,23,Qatar Grand Prix,150,Lusail,FASTF1_RACE_RESULTS,albon,16.0,15.0,Lapped,True
+2024,23,Qatar Grand Prix,150,Lusail,FASTF1_RACE_RESULTS,hulkenberg,18.0,16.0,Retired,False
+2024,23,Qatar Grand Prix,150,Lusail,FASTF1_RACE_RESULTS,perez,9.0,17.0,Retired,False
+2024,23,Qatar Grand Prix,150,Lusail,FASTF1_RACE_RESULTS,stroll,15.0,18.0,Retired,False
+2024,23,Qatar Grand Prix,150,Lusail,FASTF1_RACE_RESULTS,colapinto,19.0,19.0,Retired,False
+2024,23,Qatar Grand Prix,150,Lusail,FASTF1_RACE_RESULTS,ocon,20.0,20.0,Retired,False

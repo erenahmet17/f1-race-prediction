@@ -1,0 +1,21 @@
+Season,RoundNumber,EventName,TrackId,TrackName,TrackHistorySource,DriverId,StartOrder,ActualPosition,RaceStatus,CleanMAEEligible
+2023,19,Mexico City Grand Prix,65,Mexico City,FASTF1_RACE_RESULTS,max_verstappen,3.0,1.0,Finished,True
+2023,19,Mexico City Grand Prix,65,Mexico City,FASTF1_RACE_RESULTS,hamilton,6.0,2.0,Finished,True
+2023,19,Mexico City Grand Prix,65,Mexico City,FASTF1_RACE_RESULTS,leclerc,1.0,3.0,Finished,True
+2023,19,Mexico City Grand Prix,65,Mexico City,FASTF1_RACE_RESULTS,sainz,2.0,4.0,Finished,True
+2023,19,Mexico City Grand Prix,65,Mexico City,FASTF1_RACE_RESULTS,norris,17.0,5.0,Finished,True
+2023,19,Mexico City Grand Prix,65,Mexico City,FASTF1_RACE_RESULTS,russell,8.0,6.0,Finished,True
+2023,19,Mexico City Grand Prix,65,Mexico City,FASTF1_RACE_RESULTS,ricciardo,4.0,7.0,Finished,True
+2023,19,Mexico City Grand Prix,65,Mexico City,FASTF1_RACE_RESULTS,piastri,7.0,8.0,Finished,True
+2023,19,Mexico City Grand Prix,65,Mexico City,FASTF1_RACE_RESULTS,albon,14.0,9.0,Finished,True
+2023,19,Mexico City Grand Prix,65,Mexico City,FASTF1_RACE_RESULTS,ocon,15.0,10.0,Finished,True
+2023,19,Mexico City Grand Prix,65,Mexico City,FASTF1_RACE_RESULTS,gasly,11.0,11.0,Finished,True
+2023,19,Mexico City Grand Prix,65,Mexico City,FASTF1_RACE_RESULTS,tsunoda,18.0,12.0,Finished,True
+2023,19,Mexico City Grand Prix,65,Mexico City,FASTF1_RACE_RESULTS,hulkenberg,12.0,13.0,Finished,True
+2023,19,Mexico City Grand Prix,65,Mexico City,FASTF1_RACE_RESULTS,zhou,10.0,14.0,Finished,True
+2023,19,Mexico City Grand Prix,65,Mexico City,FASTF1_RACE_RESULTS,bottas,9.0,15.0,Finished,True
+2023,19,Mexico City Grand Prix,65,Mexico City,FASTF1_RACE_RESULTS,sargeant,19.0,16.0,Retired,False
+2023,19,Mexico City Grand Prix,65,Mexico City,FASTF1_RACE_RESULTS,stroll,,17.0,Collision damage,False
+2023,19,Mexico City Grand Prix,65,Mexico City,FASTF1_RACE_RESULTS,alonso,13.0,18.0,Withdrew,False
+2023,19,Mexico City Grand Prix,65,Mexico City,FASTF1_RACE_RESULTS,kevin_magnussen,16.0,19.0,Accident,False
+2023,19,Mexico City Grand Prix,65,Mexico City,FASTF1_RACE_RESULTS,perez,5.0,20.0,Collision damage,False

@@ -1,0 +1,21 @@
+Season,RoundNumber,EventName,TrackId,TrackName,TrackHistorySource,DriverId,StartOrder,ActualPosition,RaceStatus,CleanMAEEligible
+2022,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,leclerc,1.0,1.0,Finished,True
+2022,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,perez,3.0,2.0,Finished,True
+2022,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,russell,6.0,3.0,Finished,True
+2022,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,hamilton,5.0,4.0,Finished,True
+2022,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,norris,4.0,5.0,Finished,True
+2022,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,ricciardo,7.0,6.0,Finished,True
+2022,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,ocon,8.0,7.0,Finished,True
+2022,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,bottas,12.0,8.0,Finished,True
+2022,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,gasly,11.0,9.0,Finished,True
+2022,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,albon,20.0,10.0,Finished,True
+2022,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,zhou,14.0,11.0,Finished,True
+2022,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,stroll,19.0,12.0,Finished,True
+2022,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,mick_schumacher,15.0,13.0,+1 Lap,True
+2022,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,kevin_magnussen,16.0,14.0,+1 Lap,True
+2022,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,tsunoda,13.0,15.0,+1 Lap,True
+2022,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,latifi,18.0,16.0,+1 Lap,True
+2022,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,alonso,10.0,17.0,+1 Lap,True
+2022,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,max_verstappen,2.0,18.0,Fuel leak,False
+2022,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,vettel,17.0,19.0,Accident,False
+2022,3,Australian Grand Prix,10,Melbourne,FASTF1_RACE_RESULTS,sainz,9.0,20.0,Spun off,False

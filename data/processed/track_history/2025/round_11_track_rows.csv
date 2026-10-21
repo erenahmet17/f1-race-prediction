@@ -1,0 +1,21 @@
+Season,RoundNumber,EventName,TrackId,TrackName,TrackHistorySource,DriverId,StartOrder,ActualPosition,RaceStatus,CleanMAEEligible
+2025,11,Austrian Grand Prix,19,Spielberg,FASTF1_RACE_RESULTS,norris,1.0,1.0,Finished,True
+2025,11,Austrian Grand Prix,19,Spielberg,FASTF1_RACE_RESULTS,piastri,3.0,2.0,Finished,True
+2025,11,Austrian Grand Prix,19,Spielberg,FASTF1_RACE_RESULTS,leclerc,2.0,3.0,Finished,True
+2025,11,Austrian Grand Prix,19,Spielberg,FASTF1_RACE_RESULTS,hamilton,4.0,4.0,Finished,True
+2025,11,Austrian Grand Prix,19,Spielberg,FASTF1_RACE_RESULTS,russell,5.0,5.0,Finished,True
+2025,11,Austrian Grand Prix,19,Spielberg,FASTF1_RACE_RESULTS,lawson,6.0,6.0,Finished,True
+2025,11,Austrian Grand Prix,19,Spielberg,FASTF1_RACE_RESULTS,alonso,11.0,7.0,Lapped,True
+2025,11,Austrian Grand Prix,19,Spielberg,FASTF1_RACE_RESULTS,bortoleto,8.0,8.0,Lapped,True
+2025,11,Austrian Grand Prix,19,Spielberg,FASTF1_RACE_RESULTS,hulkenberg,20.0,9.0,Lapped,True
+2025,11,Austrian Grand Prix,19,Spielberg,FASTF1_RACE_RESULTS,ocon,17.0,10.0,Lapped,True
+2025,11,Austrian Grand Prix,19,Spielberg,FASTF1_RACE_RESULTS,bearman,15.0,11.0,Lapped,True
+2025,11,Austrian Grand Prix,19,Spielberg,FASTF1_RACE_RESULTS,hadjar,13.0,12.0,Lapped,True
+2025,11,Austrian Grand Prix,19,Spielberg,FASTF1_RACE_RESULTS,gasly,10.0,13.0,Lapped,True
+2025,11,Austrian Grand Prix,19,Spielberg,FASTF1_RACE_RESULTS,stroll,16.0,14.0,Lapped,True
+2025,11,Austrian Grand Prix,19,Spielberg,FASTF1_RACE_RESULTS,colapinto,14.0,15.0,Lapped,True
+2025,11,Austrian Grand Prix,19,Spielberg,FASTF1_RACE_RESULTS,tsunoda,18.0,16.0,Lapped,True
+2025,11,Austrian Grand Prix,19,Spielberg,FASTF1_RACE_RESULTS,albon,12.0,17.0,Retired,False
+2025,11,Austrian Grand Prix,19,Spielberg,FASTF1_RACE_RESULTS,max_verstappen,7.0,18.0,Retired,False
+2025,11,Austrian Grand Prix,19,Spielberg,FASTF1_RACE_RESULTS,antonelli,9.0,19.0,Retired,False
+2025,11,Austrian Grand Prix,19,Spielberg,FASTF1_RACE_RESULTS,sainz,19.0,20.0,Did not start,False

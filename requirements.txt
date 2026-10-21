@@ -1,0 +1,9 @@
+fastf1==3.8.3
+numpy>=2.0,<3
+pandas>=2.2,<3
+pdfplumber>=0.11,<1
+requests>=2.32,<3
+catboost>=1.2,<2
+scikit-learn>=1.5,<2
+pytest>=8,<10
+streamlit>=1.58,<2

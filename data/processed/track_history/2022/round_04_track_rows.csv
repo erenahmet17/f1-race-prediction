@@ -1,0 +1,21 @@
+Season,RoundNumber,EventName,TrackId,TrackName,TrackHistorySource,DriverId,StartOrder,ActualPosition,RaceStatus,CleanMAEEligible
+2022,4,Emilia Romagna Grand Prix,6,Imola,FASTF1_RACE_RESULTS,max_verstappen,1.0,1.0,Finished,True
+2022,4,Emilia Romagna Grand Prix,6,Imola,FASTF1_RACE_RESULTS,perez,3.0,2.0,Finished,True
+2022,4,Emilia Romagna Grand Prix,6,Imola,FASTF1_RACE_RESULTS,norris,5.0,3.0,Finished,True
+2022,4,Emilia Romagna Grand Prix,6,Imola,FASTF1_RACE_RESULTS,russell,11.0,4.0,Finished,True
+2022,4,Emilia Romagna Grand Prix,6,Imola,FASTF1_RACE_RESULTS,bottas,7.0,5.0,Finished,True
+2022,4,Emilia Romagna Grand Prix,6,Imola,FASTF1_RACE_RESULTS,leclerc,2.0,6.0,Finished,True
+2022,4,Emilia Romagna Grand Prix,6,Imola,FASTF1_RACE_RESULTS,tsunoda,12.0,7.0,Finished,True
+2022,4,Emilia Romagna Grand Prix,6,Imola,FASTF1_RACE_RESULTS,vettel,13.0,8.0,Finished,True
+2022,4,Emilia Romagna Grand Prix,6,Imola,FASTF1_RACE_RESULTS,kevin_magnussen,8.0,9.0,Finished,True
+2022,4,Emilia Romagna Grand Prix,6,Imola,FASTF1_RACE_RESULTS,stroll,15.0,10.0,+1 Lap,True
+2022,4,Emilia Romagna Grand Prix,6,Imola,FASTF1_RACE_RESULTS,albon,18.0,11.0,+1 Lap,True
+2022,4,Emilia Romagna Grand Prix,6,Imola,FASTF1_RACE_RESULTS,gasly,17.0,12.0,+1 Lap,True
+2022,4,Emilia Romagna Grand Prix,6,Imola,FASTF1_RACE_RESULTS,hamilton,14.0,13.0,+1 Lap,True
+2022,4,Emilia Romagna Grand Prix,6,Imola,FASTF1_RACE_RESULTS,ocon,16.0,14.0,+1 Lap,True
+2022,4,Emilia Romagna Grand Prix,6,Imola,FASTF1_RACE_RESULTS,zhou,,15.0,+1 Lap,False
+2022,4,Emilia Romagna Grand Prix,6,Imola,FASTF1_RACE_RESULTS,latifi,19.0,16.0,+1 Lap,True
+2022,4,Emilia Romagna Grand Prix,6,Imola,FASTF1_RACE_RESULTS,mick_schumacher,10.0,17.0,+1 Lap,True
+2022,4,Emilia Romagna Grand Prix,6,Imola,FASTF1_RACE_RESULTS,ricciardo,6.0,18.0,+1 Lap,True
+2022,4,Emilia Romagna Grand Prix,6,Imola,FASTF1_RACE_RESULTS,alonso,9.0,19.0,Collision damage,False
+2022,4,Emilia Romagna Grand Prix,6,Imola,FASTF1_RACE_RESULTS,sainz,4.0,20.0,Collision,False

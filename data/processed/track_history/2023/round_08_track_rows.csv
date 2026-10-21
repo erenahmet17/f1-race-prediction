@@ -1,0 +1,21 @@
+Season,RoundNumber,EventName,TrackId,TrackName,TrackHistorySource,DriverId,StartOrder,ActualPosition,RaceStatus,CleanMAEEligible
+2023,8,Canadian Grand Prix,23,Montreal,FASTF1_RACE_RESULTS,max_verstappen,1.0,1.0,Finished,True
+2023,8,Canadian Grand Prix,23,Montreal,FASTF1_RACE_RESULTS,alonso,2.0,2.0,Finished,True
+2023,8,Canadian Grand Prix,23,Montreal,FASTF1_RACE_RESULTS,hamilton,3.0,3.0,Finished,True
+2023,8,Canadian Grand Prix,23,Montreal,FASTF1_RACE_RESULTS,leclerc,10.0,4.0,Finished,True
+2023,8,Canadian Grand Prix,23,Montreal,FASTF1_RACE_RESULTS,sainz,11.0,5.0,Finished,True
+2023,8,Canadian Grand Prix,23,Montreal,FASTF1_RACE_RESULTS,perez,12.0,6.0,Finished,True
+2023,8,Canadian Grand Prix,23,Montreal,FASTF1_RACE_RESULTS,albon,9.0,7.0,Finished,True
+2023,8,Canadian Grand Prix,23,Montreal,FASTF1_RACE_RESULTS,ocon,6.0,8.0,Finished,True
+2023,8,Canadian Grand Prix,23,Montreal,FASTF1_RACE_RESULTS,stroll,16.0,9.0,Finished,True
+2023,8,Canadian Grand Prix,23,Montreal,FASTF1_RACE_RESULTS,bottas,14.0,10.0,Finished,True
+2023,8,Canadian Grand Prix,23,Montreal,FASTF1_RACE_RESULTS,piastri,8.0,11.0,Finished,True
+2023,8,Canadian Grand Prix,23,Montreal,FASTF1_RACE_RESULTS,gasly,15.0,12.0,Finished,True
+2023,8,Canadian Grand Prix,23,Montreal,FASTF1_RACE_RESULTS,norris,7.0,13.0,Finished,True
+2023,8,Canadian Grand Prix,23,Montreal,FASTF1_RACE_RESULTS,tsunoda,19.0,14.0,Finished,True
+2023,8,Canadian Grand Prix,23,Montreal,FASTF1_RACE_RESULTS,hulkenberg,5.0,15.0,Lapped,True
+2023,8,Canadian Grand Prix,23,Montreal,FASTF1_RACE_RESULTS,zhou,20.0,16.0,Lapped,True
+2023,8,Canadian Grand Prix,23,Montreal,FASTF1_RACE_RESULTS,kevin_magnussen,13.0,17.0,Lapped,True
+2023,8,Canadian Grand Prix,23,Montreal,FASTF1_RACE_RESULTS,de_vries,17.0,18.0,Lapped,True
+2023,8,Canadian Grand Prix,23,Montreal,FASTF1_RACE_RESULTS,russell,4.0,19.0,Retired,False
+2023,8,Canadian Grand Prix,23,Montreal,FASTF1_RACE_RESULTS,sargeant,18.0,20.0,Retired,False

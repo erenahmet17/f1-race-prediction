@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+.venv/
+*.csv.tmp
+
+# FastF1 oturum önbelleği (~1 GB); ilk çalıştırmada yeniden indirilir.
+data/cache/
