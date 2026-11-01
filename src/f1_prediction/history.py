@@ -14,10 +14,13 @@ from .collection import (
     CollectedWeekend,
     WeekendCollectionError,
     WeekendDataPaths,
+    classify_event_sessions,
     collect_pre_race_weekend,
+    weekend_features_path,
 )
+from .fia_grid import fetch_fia_final_grid
 from .fia_race import FiaRaceSnapshot, fetch_fia_final_race_classification
-from .identity import normalize_fastf1_driver_ids
+from .identity import normalize_fastf1_driver_ids, normalize_team_names
 from .race import RACE_TARGET_COLUMNS, build_race_targets
 
 
@@ -114,6 +117,49 @@ def _write_history(
     return destination
 
 
+def _require_pre_race_identity(
+    features: pd.DataFrame, season: int, round_number: int
+) -> None:
+    seasons = set(pd.to_numeric(features["Season"], errors="coerce").dropna())
+    rounds = set(pd.to_numeric(features["RoundNumber"], errors="coerce").dropna())
+    if seasons != {season} or rounds != {round_number}:
+        raise HistoryDataError("Verilen yarış öncesi tablo sezon/round ile uyuşmuyor")
+
+
+def _load_saved_pre_race(
+    path: Path,
+    event: object,
+    season: int,
+    round_number: int,
+    race_results: pd.DataFrame,
+    *,
+    paths: WeekendDataPaths,
+) -> CollectedWeekend:
+    """Tahminin gördüğü kayıtlı tabloyu FIA final gridiyle doğrulayarak yükler."""
+    features = pd.read_csv(path)
+    _require_pre_race_identity(features, season, round_number)
+    event_name = str(event.get("EventName", "")).strip()
+    final_grid = fetch_fia_final_grid(
+        event_name,
+        season,
+        race_results,
+        raw_data_dir=paths.raw,
+    )
+    saved = features.set_index("DriverId")["StartOrder"]
+    official = final_grid.features.set_index("DriverId")["StartOrder"]
+    if set(saved.index) != set(official.index) or (
+        pd.to_numeric(saved) != pd.to_numeric(official.reindex(saved.index))
+    ).any():
+        raise HistoryDataError("Kayıtlı yarış öncesi tablo FIA final gridiyle uyuşmuyor")
+    return CollectedWeekend(
+        features=features,
+        event_name=event_name,
+        sessions=classify_event_sessions(event),
+        final_grid=final_grid,
+        feature_path=path,
+    )
+
+
 def collect_completed_round(
     season: int,
     round_number: int,
@@ -123,9 +169,19 @@ def collect_completed_round(
     event_getter: Callable[[int, int], object] = fastf1.get_event,
     cache_enabler: Callable[[str], None] = fastf1.Cache.enable_cache,
     pre_race: CollectedWeekend | None = None,
+    reuse_saved_pre_race: bool = False,
 ) -> CompletedRound:
-    """Yarış bittikten sonra pre-race özelliklerini resmî sonuçla eşler."""
-    if pre_race is None:
+    """Yarış bittikten sonra pre-race özelliklerini resmî sonuçla eşler.
+
+    ``reuse_saved_pre_race`` açıkken diskte tablo varsa antrenman ve sıralama
+    verisi yeniden toplanmaz; yalnız yarış sonucu ve FIA belgeleri gerekir.
+    """
+    saved_path = weekend_features_path(paths, season, round_number)
+    use_saved = pre_race is None and reuse_saved_pre_race and saved_path.exists()
+    if use_saved:
+        paths.ensure()
+        cache_enabler(str(paths.cache))
+    elif pre_race is None:
         pre_race = collect_pre_race_weekend(
             season,
             round_number,
@@ -135,10 +191,7 @@ def collect_completed_round(
             cache_enabler=cache_enabler,
         )
     else:
-        seasons = set(pd.to_numeric(pre_race.features["Season"], errors="coerce").dropna())
-        rounds = set(pd.to_numeric(pre_race.features["RoundNumber"], errors="coerce").dropna())
-        if seasons != {season} or rounds != {round_number}:
-            raise HistoryDataError("Verilen yarış öncesi tablo sezon/round ile uyuşmuyor")
+        _require_pre_race_identity(pre_race.features, season, round_number)
     try:
         event = event_getter(season, round_number)
         race_session = event.get_session("Race")
@@ -151,7 +204,13 @@ def collect_completed_round(
     except Exception as exc:
         raise WeekendCollectionError(f"Race sonucu yüklenemedi: {exc}") from exc
 
-    race_results = normalize_fastf1_driver_ids(race_session.results.copy())
+    race_results = normalize_team_names(
+        normalize_fastf1_driver_ids(race_session.results.copy())
+    )
+    if use_saved:
+        pre_race = _load_saved_pre_race(
+            saved_path, event, season, round_number, race_results, paths=paths
+        )
     final_race = fetch_fia_final_race_classification(
         pre_race.event_name,
         season,

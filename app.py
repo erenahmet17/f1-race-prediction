@@ -23,6 +23,7 @@ from f1_prediction.dashboard import (  # noqa: E402
     load_saved_prediction,
     load_saved_retrospective,
     style_team_rows,
+    turkish_upper,
 )
 from f1_prediction.prediction import (  # noqa: E402
     create_pre_race_prediction,
@@ -280,7 +281,7 @@ with races_tab:
         )
         st.subheader(race.event_name)
         if race.source:
-            st.markdown(f'<div class="pit-tag">{race.source.upper()}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="pit-tag">{turkish_upper(race.source)}</div>', unsafe_allow_html=True)
         else:
             st.caption("Bu tur için tahmin kaydı yok; yalnız resmî yarış sonucu gösteriliyor.")
 

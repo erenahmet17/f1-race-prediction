@@ -7,6 +7,7 @@ from f1_prediction.dashboard import (
     available_seasons,
     build_race_view,
     style_team_rows,
+    turkish_upper,
 )
 
 
@@ -83,6 +84,11 @@ def test_team_rows_use_team_colors_and_unknown_team_stays_neutral() -> None:
     assert (0, 0) in styled.ctx and "#754013" in str(styled.ctx[(0, 0)])
     assert (1, 1) in styled.ctx and "#75242c" in str(styled.ctx[(1, 1)])
     assert (2, 0) not in styled.ctx
+
+
+def test_turkish_upper_keeps_dotted_and_dotless_i() -> None:
+    assert turkish_upper("Kaydedilmiş yarış öncesi tahmin") == "KAYDEDİLMİŞ YARIŞ ÖNCESİ TAHMİN"
+    assert turkish_upper("Yarış sonrası geriye dönük deneme") == "YARIŞ SONRASI GERİYE DÖNÜK DENEME"
 
 
 def test_retrospective_is_separate_and_precedes_backtest(tmp_path) -> None:

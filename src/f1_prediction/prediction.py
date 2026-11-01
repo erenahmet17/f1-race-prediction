@@ -12,6 +12,7 @@ from .collection import (
     CollectedWeekend,
     WeekendDataPaths,
     collect_pre_race_weekend,
+    write_weekend_features,
 )
 from .dashboard import build_race_view
 from .history import collect_completed_round
@@ -142,7 +143,7 @@ def create_pre_race_prediction(
         season,
         round_number,
         paths=paths,
-        save=save,
+        save=False,
     )
     race_start_utc = weekend.race_start_utc
     if race_start_utc is None or pd.isna(race_start_utc):
@@ -153,6 +154,9 @@ def create_pre_race_prediction(
         raise PreRacePredictionError(
             "Yarış başlamış; yeni yarış öncesi tahmin kaydedilemez"
         )
+    # Özellik tablosu ancak yarışın başlamadığı doğrulandıktan sonra diske yazılır.
+    if save:
+        write_weekend_features(weekend.features, paths, season, round_number)
     model, calibration = _predict_with_prior_history(
         history, weekend, min_train_rounds=min_train_rounds,
     )

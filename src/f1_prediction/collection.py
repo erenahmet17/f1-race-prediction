@@ -11,7 +11,7 @@ import fastf1
 import pandas as pd
 
 from .fia_grid import FiaGridSnapshot, fetch_fia_final_grid
-from .identity import normalize_fastf1_driver_ids
+from .identity import normalize_fastf1_driver_ids, normalize_team_names
 from .practice import PracticeFeatures, build_practice_features
 from .qualifying import build_qualifying_features
 from .sprint import build_sprint_features
@@ -157,15 +157,25 @@ def _align_team_names(
     return aligned
 
 
-def _write_features(
+def weekend_features_path(
+    paths: WeekendDataPaths, season: int, round_number: int
+) -> Path:
+    return (
+        paths.processed
+        / "pre_race"
+        / str(season)
+        / f"round_{round_number:02d}_weekend_features.csv"
+    )
+
+
+def write_weekend_features(
     features: pd.DataFrame,
     paths: WeekendDataPaths,
     season: int,
     round_number: int,
 ) -> Path:
-    directory = paths.processed / "pre_race" / str(season)
-    directory.mkdir(parents=True, exist_ok=True)
-    destination = directory / f"round_{round_number:02d}_weekend_features.csv"
+    destination = weekend_features_path(paths, season, round_number)
+    destination.parent.mkdir(parents=True, exist_ok=True)
     temporary = destination.with_suffix(".csv.tmp")
     try:
         features.to_csv(temporary, index=False)
@@ -229,8 +239,8 @@ def collect_pre_race_weekend(
     qualifying_session = _load_session(
         event, sessions.qualifying, telemetry=True
     )
-    qualifying_results = normalize_fastf1_driver_ids(
-        qualifying_session.results.copy()
+    qualifying_results = normalize_team_names(
+        normalize_fastf1_driver_ids(qualifying_session.results.copy())
     )
     qualifying_features = build_qualifying_features(qualifying_results)
     practice_laps = {
@@ -298,7 +308,7 @@ def collect_pre_race_weekend(
         target_round=round_number,
     )
     feature_path = (
-        _write_features(features, paths, season, round_number) if save else None
+        write_weekend_features(features, paths, season, round_number) if save else None
     )
     return CollectedWeekend(
         features=features,

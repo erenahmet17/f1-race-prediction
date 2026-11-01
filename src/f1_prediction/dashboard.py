@@ -50,6 +50,11 @@ def style_team_rows(frame: pd.DataFrame, *, team_column: str = "Team"):
     return frame.style.apply(color_row, axis=1)
 
 
+def turkish_upper(text: str) -> str:
+    """Metni i/İ ve ı/I ayrımını koruyarak büyük harfe çevirir."""
+    return text.replace("i", "İ").replace("ı", "I").upper()
+
+
 def available_seasons(processed: Path) -> list[int]:
     """Geçmiş, backtest veya canlı tahmin kaydı bulunan sezonları listeler."""
     seasons: set[int] = set()

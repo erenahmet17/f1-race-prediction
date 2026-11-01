@@ -1,15 +1,18 @@
 from __future__ import annotations
 
 from pathlib import Path
+from types import SimpleNamespace
 
 import pandas as pd
 import pytest
 
-from f1_prediction.collection import WeekendDataPaths
+import f1_prediction.history as history_module
+from f1_prediction.collection import WeekendDataPaths, weekend_features_path
 from f1_prediction.history import (
     HistoryDataError,
     InsufficientHistoryError,
     build_completed_round_rows,
+    collect_completed_round,
     load_history_before_round,
     select_history_before_round,
 )
@@ -132,6 +135,134 @@ def test_load_history_ignores_files_from_prediction_round_and_later(
     history = load_history_before_round(paths, season=2026, prediction_round=5)
 
     assert history["RoundNumber"].unique().tolist() == [1, 2, 3, 4]
+
+
+class FakeEvent(dict):
+    def get_session(self, name: str) -> SimpleNamespace:
+        results = pd.DataFrame(
+            {
+                "DriverId": ["max_verstappen", "leclerc"],
+                "DriverNumber": ["3", "16"],
+                "Abbreviation": ["VER", "LEC"],
+                "TeamName": ["Red Bull", "Ferrari"],
+                "Position": [2, 1],
+                "Status": ["Finished", "Finished"],
+                "Laps": [56, 56],
+            }
+        )
+        return SimpleNamespace(load=lambda **kwargs: None, results=results)
+
+
+def fake_event(season: int, round_number: int) -> FakeEvent:
+    return FakeEvent(
+        EventName="Test Grand Prix",
+        Session1="Practice 1",
+        Session4="Qualifying",
+        Session5="Race",
+    )
+
+
+def save_pre_race_table(paths: WeekendDataPaths) -> Path:
+    path = weekend_features_path(paths, 2026, 2)
+    path.parent.mkdir(parents=True)
+    pd.DataFrame(
+        {
+            "Season": [2026, 2026],
+            "RoundNumber": [2, 2],
+            "DriverId": ["abbr:VER", "abbr:LEC"],
+            "Driver": ["VER", "LEC"],
+            "Team": ["Red Bull Racing", "Ferrari"],
+            "StartOrder": [1, 2],
+        }
+    ).to_csv(path, index=False)
+    return path
+
+
+def patch_fia(monkeypatch, *, grid: list[int]) -> None:
+    ids = ["abbr:VER", "abbr:LEC"]
+    monkeypatch.setattr(
+        history_module,
+        "fetch_fia_final_grid",
+        lambda *args, **kwargs: SimpleNamespace(
+            features=pd.DataFrame({"DriverId": ids, "StartOrder": grid})
+        ),
+    )
+    monkeypatch.setattr(
+        history_module,
+        "fetch_fia_final_race_classification",
+        lambda *args, **kwargs: SimpleNamespace(
+            classification=pd.DataFrame(
+                {"DriverId": ids, "RaceOfficialPosition": [2, 1]}
+            )
+        ),
+    )
+
+
+def forbid_recollection(*args, **kwargs):
+    raise AssertionError("Kayıtlı tablo varken yarış öncesi veri yeniden toplanmamalı")
+
+
+def test_result_reuses_saved_pre_race_table_without_recollecting(
+    tmp_path: Path, monkeypatch
+) -> None:
+    paths = WeekendDataPaths.from_project_root(tmp_path)
+    saved = save_pre_race_table(paths)
+    before = saved.read_bytes()
+    patch_fia(monkeypatch, grid=[1, 2])
+    monkeypatch.setattr(history_module, "collect_pre_race_weekend", forbid_recollection)
+
+    result = collect_completed_round(
+        2026,
+        2,
+        paths=paths,
+        event_getter=fake_event,
+        cache_enabler=lambda path: None,
+        reuse_saved_pre_race=True,
+    )
+
+    assert saved.read_bytes() == before
+    assert result.history_path is not None and result.history_path.exists()
+    assert result.pre_race.event_name == "Test Grand Prix"
+    rows = pd.read_csv(result.history_path).set_index("Driver")
+    assert rows.loc["VER", "ActualPosition"] == 2
+    assert rows.loc["LEC", "ActualPosition"] == 1
+    assert rows.loc["VER", "Team"] == "Red Bull Racing"
+
+
+def test_saved_pre_race_table_must_match_fia_final_grid(
+    tmp_path: Path, monkeypatch
+) -> None:
+    paths = WeekendDataPaths.from_project_root(tmp_path)
+    save_pre_race_table(paths)
+    patch_fia(monkeypatch, grid=[2, 1])
+    monkeypatch.setattr(history_module, "collect_pre_race_weekend", forbid_recollection)
+
+    with pytest.raises(HistoryDataError, match="FIA final gridiyle"):
+        collect_completed_round(
+            2026,
+            2,
+            paths=paths,
+            event_getter=fake_event,
+            cache_enabler=lambda path: None,
+            reuse_saved_pre_race=True,
+        )
+
+    assert not (paths.processed / "history" / "2026" / "round_02_training_rows.csv").exists()
+
+
+def test_result_recollects_by_default_even_when_table_is_saved(
+    tmp_path: Path, monkeypatch
+) -> None:
+    paths = WeekendDataPaths.from_project_root(tmp_path)
+    save_pre_race_table(paths)
+
+    def recollect(*args, **kwargs):
+        raise RuntimeError("yeniden toplandı")
+
+    monkeypatch.setattr(history_module, "collect_pre_race_weekend", recollect)
+
+    with pytest.raises(RuntimeError, match="yeniden toplandı"):
+        collect_completed_round(2026, 2, paths=paths)
 
 
 def test_first_round_prediction_is_explicitly_blocked() -> None:

@@ -11,6 +11,14 @@ class DriverIdentityError(ValueError):
 
 _INVALID_TEXT = {"", "nan", "none", "<na>", "nat", "null"}
 
+# F1 API'sine ulaşılamadığında FastF1 takım adlarını Jolpica'dan alır.
+_JOLPICA_TEAM_NAMES = {
+    "Red Bull": "Red Bull Racing",
+    "RB F1 Team": "Racing Bulls",
+    "Alpine F1 Team": "Alpine",
+    "Cadillac F1 Team": "Cadillac",
+}
+
 
 def normalize_fastf1_driver_ids(results: pd.DataFrame) -> pd.DataFrame:
     """Seanslar arasında değişebilen DriverId yerine üç harfli kodu sabitler."""
@@ -38,4 +46,13 @@ def normalize_fastf1_driver_ids(results: pd.DataFrame) -> pd.DataFrame:
             f"Normalize edilmiş pilot kimliği tekrarlanıyor: {', '.join(duplicates)}"
         )
     normalized["DriverId"] = driver_ids
+    return normalized
+
+
+def normalize_team_names(results: pd.DataFrame) -> pd.DataFrame:
+    """Jolpica takım adlarını geçmiş verideki F1 API adlarıyla aynı yazar."""
+    if "TeamName" not in results.columns:
+        return results.copy()
+    normalized = results.copy()
+    normalized["TeamName"] = normalized["TeamName"].replace(_JOLPICA_TEAM_NAMES)
     return normalized

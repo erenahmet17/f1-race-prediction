@@ -26,6 +26,7 @@ def main() -> None:
         args.round_number,
         paths=WeekendDataPaths.from_project_root(PROJECT_ROOT),
         save=not args.no_save,
+        reuse_saved_pre_race=True,
     )
     clean_count = int(result.rows["CleanMAEEligible"].sum())
     print(f"{result.pre_race.event_name}: {len(result.rows)} yarış sonucu işlendi")

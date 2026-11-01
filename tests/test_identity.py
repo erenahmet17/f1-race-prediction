@@ -3,7 +3,11 @@ from __future__ import annotations
 import pandas as pd
 import pytest
 
-from f1_prediction.identity import DriverIdentityError, normalize_fastf1_driver_ids
+from f1_prediction.identity import (
+    DriverIdentityError,
+    normalize_fastf1_driver_ids,
+    normalize_team_names,
+)
 
 
 def test_all_fastf1_driver_ids_use_stable_prefixed_abbreviation() -> None:
@@ -30,3 +34,17 @@ def test_driver_identity_requires_at_least_one_usable_identifier() -> None:
 
     with pytest.raises(DriverIdentityError, match="Abbreviation boş"):
         normalize_fastf1_driver_ids(results)
+
+
+def test_jolpica_team_names_match_f1_api_names_and_others_stay() -> None:
+    results = pd.DataFrame(
+        {"TeamName": ["Red Bull", "RB F1 Team", "Alpine F1 Team", "Cadillac F1 Team", "Ferrari"]}
+    )
+
+    assert normalize_team_names(results)["TeamName"].tolist() == [
+        "Red Bull Racing",
+        "Racing Bulls",
+        "Alpine",
+        "Cadillac",
+        "Ferrari",
+    ]

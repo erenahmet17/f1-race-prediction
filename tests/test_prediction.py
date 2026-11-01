@@ -78,6 +78,7 @@ def test_pre_race_prediction_saves_atomic_output(tmp_path, monkeypatch) -> None:
     assert pd.read_csv(expected)["Driver"].tolist() == ["AAA"]
     assert captured["calibration_predictions"] is calibration.predictions
     assert not expected.with_suffix(".csv.tmp").exists()
+    assert (paths.processed / "pre_race" / "2026" / "round_06_weekend_features.csv").exists()
 
 
 def test_pre_race_prediction_preserves_existing_file(tmp_path) -> None:
@@ -110,6 +111,31 @@ def test_pre_race_prediction_rejects_started_race(tmp_path, monkeypatch) -> None
 
     with pytest.raises(prediction.PreRacePredictionError, match="Yarış başlamış"):
         prediction.create_pre_race_prediction(2026, 2, paths=paths, save=False)
+
+
+def test_started_race_does_not_write_weekend_features(tmp_path, monkeypatch) -> None:
+    paths = WeekendDataPaths.from_project_root(tmp_path)
+    monkeypatch.setattr(
+        prediction,
+        "load_history_before_round",
+        lambda paths, season, prediction_round: pd.DataFrame({"RoundNumber": [1]}),
+    )
+    weekend = SimpleNamespace(
+        features=pd.DataFrame({"DriverId": ["A"]}),
+        race_start_utc=pd.Timestamp("2000-01-01", tz="UTC"),
+    )
+    saves: list[bool] = []
+    monkeypatch.setattr(
+        prediction,
+        "collect_pre_race_weekend",
+        lambda season, round_number, paths, save: saves.append(save) or weekend,
+    )
+
+    with pytest.raises(prediction.PreRacePredictionError, match="Yarış başlamış"):
+        prediction.create_pre_race_prediction(2026, 2, paths=paths, save=True)
+
+    assert saves == [False]
+    assert not (paths.processed / "pre_race" / "2026" / "round_02_weekend_features.csv").exists()
 
 
 def test_retrospective_uses_prior_history_then_official_result(tmp_path, monkeypatch) -> None:
