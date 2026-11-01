@@ -3,9 +3,8 @@
 Formula 1 yarışlarının bitiş sıralamasını, yalnız yarış başlamadan önce bilinen
 verilerle tahmin eden bir model ve yerel Streamlit paneli.
 
-Veriler FastF1 (antrenman, sıralama, sprint, pist geometrisi) ve resmî FIA
-belgelerinden (final start gridi, grid cezaları, final yarış sınıflandırması)
-toplanır. Tahmin, FIA final gridi yayımlandıktan sonra ve yarış başlamadan önce
+Veriler OpenF1, Jolpica, MultiViewer ve resmî FIA belgelerinden toplanır; hiçbiri
+giriş gerektirmez ([veri kaynakları](#veri-kaynakları)). Tahmin, FIA final gridi yayımlandıktan sonra ve yarış başlamadan önce
 üretilir; kaydedilen tahmin dosyası bir daha değiştirilmez.
 
 ## Model
@@ -59,16 +58,25 @@ python -m pip install -r requirements.txt
 FastF1 önbelleği (`data/cache/`) depoda yoktur; gereken oturumlar ilk
 çalıştırmada indirilir. Veri toplamak için internet bağlantısı gerekir.
 
-### Veri erişimi
+### Veri kaynakları
 
 Formula 1, Ekim 2026'dan beri zamanlama arşivine giriş şartı koyuyor (FastF1'e
-göre F1 TV Access veya üstü). Projedeki FastF1 3.8.3 bu girişi desteklemediği için
-yeni hafta sonlarının antrenman ve tur verisi alınamıyor; `predict_race.py`,
-`collect_weekend.py` ve panelin yeni tahmin ile geriye dönük düğmeleri hata verir.
+göre F1 TV Access veya üstü). Proje bu arşive bağlanmaz:
 
-Kayıtlı yarış öncesi tablosu olan yarışlarda `collect_result.py` giriş gerektirmez:
-sonuç Jolpica ve FIA belgelerinden gelir. Round 18 tahmini antrenman verisi olmadan
-üretilmiştir.
+| Veri | Kaynak |
+|------|--------|
+| Antrenman ve sprint turları, lastik, stint | [OpenF1](https://openf1.org) |
+| Sıralama, sprint ve yarış sonuçları | [Jolpica](https://api.jolpi.ca) (FastF1 üzerinden) |
+| Final grid, grid cezaları, final yarış sınıflandırması | FIA belgeleri |
+| Viraj sayısı ve yaklaşık pist uzunluğu | MultiViewer |
+| Yarış takvimi | FastF1 |
+
+OpenF1 ve MultiViewer gayriresmî servislerdir. OpenF1'e ulaşılamazsa tahmin durmaz:
+antrenman ve sprint turu özellikleri `MISSING` işaretlenir, pist kimliği geçmiş
+kayıtlardan alınır. Round 18 tahmini antrenman verisi olmadan üretilmiştir.
+
+`backfill_track_history.py` hâlâ F1 arşivindeki pist kimliğine bağlıdır ve giriş
+olmadan çalışmaz; 2022–2025 pist kayıtları depoda hazırdır.
 
 ## Kullanım
 
@@ -108,7 +116,8 @@ Diğer betikler:
 ```text
 app.py                     PIT WALL Streamlit paneli
 src/f1_prediction/
-  collection.py            yarış öncesi özellik toplama (FastF1 + FIA)
+  collection.py            yarış öncesi özellik toplama
+  openf1.py                OpenF1 turlarını FastF1 biçimine çevirme
   practice.py              antrenman temposu ve uzun stint özellikleri
   qualifying.py            sıralama farkları ve takım arkadaşı karşılaştırması
   sprint.py                sprint yarışı özellikleri

@@ -1,7 +1,8 @@
-"""FastF1 ve FIA kaynaklarından yarış öncesi özellik tablosunu üretir."""
+"""OpenF1, Jolpica ve FIA kaynaklarından yarış öncesi özellik tablosunu üretir."""
 
 from __future__ import annotations
 
+import logging
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -12,6 +13,13 @@ import pandas as pd
 
 from .fia_grid import FiaGridSnapshot, fetch_fia_final_grid
 from .identity import normalize_fastf1_driver_ids, normalize_team_names
+from .openf1 import (
+    LAP_COLUMNS,
+    OpenF1Error,
+    OpenF1Session,
+    fetch_openf1_laps,
+    find_openf1_session,
+)
 from .practice import PracticeFeatures, build_practice_features
 from .qualifying import build_qualifying_features
 from .sprint import build_sprint_features
@@ -19,8 +27,12 @@ from .track import (
     attach_track_features,
     build_track_geometry_features,
     load_available_track_history,
+    track_identity_from_history,
 )
 from .weekend import build_weekend_feature_table
+
+
+_logger = logging.getLogger(__name__)
 
 
 class WeekendCollectionError(RuntimeError):
@@ -101,14 +113,13 @@ def _practice_code(session_name: str, fallback_number: int) -> str:
     return f"FP{number}"
 
 
-def _load_session(
-    event: object, session_name: str, *, telemetry: bool = False
-) -> object:
+def _load_session_results(event: object, session_name: str) -> object:
+    """Seans sonuçlarını yükler; F1 girişi gerekmez, FastF1 bunları Jolpica'dan alır."""
     try:
         session = event.get_session(session_name)
         session.load(
-            laps=True,
-            telemetry=telemetry,
+            laps=False,
+            telemetry=False,
             weather=False,
             messages=False,
         )
@@ -117,6 +128,59 @@ def _load_session(
         raise WeekendCollectionError(
             f"{session_name} seansı yüklenemedi: {exc}"
         ) from exc
+
+
+def _session_start_utc(event: object, session_name: str) -> pd.Timestamp | None:
+    for session_index in range(1, 6):
+        if str(event.get(f"Session{session_index}", "")).strip() == session_name:
+            start = pd.to_datetime(
+                event.get(f"Session{session_index}DateUtc"),
+                utc=True,
+                errors="coerce",
+            )
+            return None if pd.isna(start) else start
+    return None
+
+
+def _find_session(
+    event: object, session_name: str, season: int
+) -> OpenF1Session | None:
+    try:
+        return find_openf1_session(
+            season, session_name, _session_start_utc(event, session_name)
+        )
+    except OpenF1Error as exc:
+        _logger.warning("%s seansı OpenF1'de bulunamadı: %s", session_name, exc)
+        return None
+
+
+def _session_laps(event: object, session_name: str, season: int) -> pd.DataFrame:
+    """Turları OpenF1'den alır; ulaşılamazsa özellikler MISSING işaretlenir."""
+    empty = pd.DataFrame(columns=list(LAP_COLUMNS))
+    session = _find_session(event, session_name, season)
+    if session is None:
+        return empty
+    try:
+        return fetch_openf1_laps(session.session_key)
+    except OpenF1Error as exc:
+        _logger.warning("%s turları alınamadı: %s", session_name, exc)
+        return empty
+
+
+def _track_identity(
+    event: object,
+    session_name: str,
+    season: int,
+    event_name: str,
+    track_history: pd.DataFrame,
+) -> tuple[str, str]:
+    session = _find_session(event, session_name, season)
+    if session is not None:
+        return str(session.circuit_key), session.circuit_name
+    identity = track_identity_from_history(track_history, event_name)
+    if identity is None:
+        raise WeekendCollectionError(f"{event_name} için pist kimliği bulunamadı")
+    return identity
 
 
 def _align_team_names(
@@ -230,15 +294,14 @@ def collect_pre_race_weekend(
             break
     practice_laps: dict[str, pd.DataFrame] = {}
     for index, session_name in enumerate(sessions.practice, start=1):
-        session = _load_session(event, session_name)
-        practice_laps[_practice_code(session_name, index)] = session.laps.copy()
+        practice_laps[_practice_code(session_name, index)] = _session_laps(
+            event, session_name, season
+        )
     sprint_session: object | None = None
     if sessions.sprint is not None:
-        sprint_session = _load_session(event, sessions.sprint)
+        sprint_session = _load_session_results(event, sessions.sprint)
 
-    qualifying_session = _load_session(
-        event, sessions.qualifying, telemetry=True
-    )
+    qualifying_session = _load_session_results(event, sessions.qualifying)
     qualifying_results = normalize_team_names(
         normalize_fastf1_driver_ids(qualifying_session.results.copy())
     )
@@ -262,7 +325,7 @@ def collect_pre_race_weekend(
     if sprint_session is not None:
         sprint_features = build_sprint_features(
             _align_team_names(
-                sprint_session.laps.copy(),
+                _session_laps(event, sessions.sprint, season),
                 qualifying_results,
                 driver_column="Driver",
                 team_column="Team",
@@ -294,12 +357,15 @@ def collect_pre_race_weekend(
         sprint=sprint_features,
         is_sprint_weekend=sessions.is_sprint_weekend,
     )
-    geometry = build_track_geometry_features(qualifying_session)
     track_history = load_available_track_history(
         paths.processed,
         target_season=season,
         target_round=round_number,
     )
+    track_id, track_name = _track_identity(
+        event, sessions.qualifying, season, event_name, track_history
+    )
+    geometry = build_track_geometry_features(track_id, track_name, year=season)
     features = attach_track_features(
         features,
         geometry,

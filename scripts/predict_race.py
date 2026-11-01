@@ -41,6 +41,8 @@ def main() -> None:
         f"({result.model.training_rows} pilot satırı)"
     )
     print(f"Grid-delta ağırlığı: {result.model.grid_delta_weight:.2f}")
+    practice_quality = result.weekend.features["PracticeDataQuality"].value_counts()
+    print(f"Antrenman verisi kalitesi: {practice_quality.to_dict()}")
     print(
         predictions[
             [

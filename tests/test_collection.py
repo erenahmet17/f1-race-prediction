@@ -14,6 +14,7 @@ from f1_prediction.collection import (
     collect_pre_race_weekend,
 )
 from f1_prediction.fia_grid import FiaGridDocument, FiaGridSnapshot
+from f1_prediction.openf1 import LAP_COLUMNS, OpenF1Error, OpenF1Session
 from f1_prediction.practice import PracticeFeatures
 
 
@@ -226,6 +227,25 @@ def test_team_names_are_aligned_to_main_qualifying() -> None:
     assert race_drivers_only["Team"].tolist() == ["One", "Two"]
 
 
+def patch_openf1(monkeypatch: pytest.MonkeyPatch) -> list[str]:
+    """OpenF1'den istenen seans adlarını sırayla döndürmek için kaydeder."""
+    requested: list[str] = []
+    keys: dict[int, str] = {}
+
+    def find(season: int, session_name: str, start_utc: object) -> OpenF1Session:
+        key = len(keys) + 1
+        keys[key] = session_name
+        return OpenF1Session(key, 99, "Example Circuit")
+
+    def laps(session_key: int) -> pd.DataFrame:
+        requested.append(keys[session_key])
+        return pd.DataFrame(columns=list(LAP_COLUMNS))
+
+    monkeypatch.setattr("f1_prediction.collection.find_openf1_session", find)
+    monkeypatch.setattr("f1_prediction.collection.fetch_openf1_laps", laps)
+    return requested
+
+
 def patch_builders(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
         "f1_prediction.collection.build_practice_features",
@@ -271,6 +291,7 @@ def test_conventional_weekend_loads_three_practices_and_saves(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     patch_builders(monkeypatch)
+    lap_requests = patch_openf1(monkeypatch)
     values = event_values(sprint=False)
     event = FakeEvent(values, fake_sessions(values))
     event["Session5DateUtc"] = pd.Timestamp("2026-03-15T14:00:00Z")
@@ -284,11 +305,11 @@ def test_conventional_weekend_loads_three_practices_and_saves(
         cache_enabler=lambda *_: None,
     )
 
-    assert event.requested_sessions == [
-        "Practice 1",
-        "Practice 2",
-        "Practice 3",
-        "Qualifying",
+    assert lap_requests == ["Practice 1", "Practice 2", "Practice 3"]
+    # FastF1'den yalnız Jolpica sonuçları ister; tur verisi F1 girişi gerektirir.
+    assert event.requested_sessions == ["Qualifying"]
+    assert event.sessions["Qualifying"].load_calls == [
+        {"laps": False, "telemetry": False, "weather": False, "messages": False}
     ]
     assert not result.sessions.is_sprint_weekend
     assert result.feature_path is not None and result.feature_path.exists()
@@ -302,6 +323,7 @@ def test_sprint_weekend_loads_sprint_but_never_sprint_qualifying(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     patch_builders(monkeypatch)
+    lap_requests = patch_openf1(monkeypatch)
     values = event_values(sprint=True)
     event = FakeEvent(values, fake_sessions(values))
 
@@ -314,11 +336,101 @@ def test_sprint_weekend_loads_sprint_but_never_sprint_qualifying(
         cache_enabler=lambda *_: None,
     )
 
-    assert event.requested_sessions == ["Practice 1", "Sprint", "Qualifying"]
-    assert "Sprint Qualifying" not in event.requested_sessions
+    assert lap_requests == ["Practice 1", "Sprint"]
+    assert event.requested_sessions == ["Sprint", "Qualifying"]
+    assert "Sprint Qualifying" not in lap_requests
     assert result.sessions.is_sprint_weekend
     assert result.features["SprintDataAvailable"].all()
     assert result.feature_path is None
+
+
+def test_openf1_outage_marks_practice_missing_and_keeps_track_identity(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # Antrenman hesabı taklit edilmez: gerçek kod boş turlarla da çalışmalı.
+    monkeypatch.setattr(
+        "f1_prediction.collection.build_qualifying_features",
+        lambda *args, **kwargs: qualifying_features(),
+    )
+    monkeypatch.setattr(
+        "f1_prediction.collection.fetch_fia_final_grid",
+        lambda *args, **kwargs: grid_snapshot(),
+    )
+    monkeypatch.setattr(
+        "f1_prediction.collection.build_track_geometry_features",
+        lambda track_id, track_name, *, year: {
+            "TrackId": track_id,
+            "TrackName": track_name,
+            "TrackLapDistanceKm": None,
+            "TrackLapDistanceApproximate": True,
+            "TrackCornerCount": None,
+            "TrackCornersPerKm": float("nan"),
+            "TrackGeometryDataQuality": "MISSING",
+            "TrackGeometryDataMissing": True,
+            "TrackGeometrySource": "TEST",
+        },
+    )
+
+    def unavailable(*args, **kwargs):
+        raise OpenF1Error("erişilemiyor")
+
+    monkeypatch.setattr("f1_prediction.collection.find_openf1_session", unavailable)
+    paths = WeekendDataPaths.from_project_root(tmp_path)
+    earlier = paths.processed / "track_history" / "2025"
+    earlier.mkdir(parents=True)
+    pd.DataFrame(
+        [
+            {
+                "Season": 2025,
+                "RoundNumber": 5,
+                "EventName": "Example Grand Prix",
+                "TrackId": 99,
+                "TrackName": "Example Circuit",
+                "DriverId": "aaa",
+                "StartOrder": 1,
+                "ActualPosition": 1,
+                "CleanMAEEligible": True,
+            }
+        ]
+    ).to_csv(earlier / "round_05_track_rows.csv", index=False)
+    values = event_values(sprint=False)
+
+    result = collect_pre_race_weekend(
+        2026,
+        2,
+        paths=paths,
+        save=False,
+        event_getter=lambda *_: FakeEvent(values, fake_sessions(values)),
+        cache_enabler=lambda *_: None,
+    )
+
+    assert result.features["PracticeDataQuality"].eq("MISSING").all()
+    assert result.features["PracticeDataMissing"].all()
+    assert result.features["PreRaceDataMissing"].all()
+    assert result.features["TrackId"].astype(str).eq("99").all()
+    assert result.features["TrackName"].eq("Example Circuit").all()
+
+
+def test_unknown_track_without_openf1_is_rejected(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    patch_builders(monkeypatch)
+
+    def unavailable(*args, **kwargs):
+        raise OpenF1Error("erişilemiyor")
+
+    monkeypatch.setattr("f1_prediction.collection.find_openf1_session", unavailable)
+    values = event_values(sprint=False)
+
+    with pytest.raises(WeekendCollectionError, match="pist kimliği"):
+        collect_pre_race_weekend(
+            2026,
+            2,
+            paths=WeekendDataPaths.from_project_root(tmp_path),
+            save=False,
+            event_getter=lambda *_: FakeEvent(values, fake_sessions(values)),
+            cache_enabler=lambda *_: None,
+        )
 
 
 def test_missing_main_qualifying_is_rejected() -> None:

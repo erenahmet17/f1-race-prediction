@@ -326,6 +326,12 @@ with predict_tab:
                     f"{result.weekend.event_name} tahmini kaydedildi: "
                     f"{result.prediction_path}"
                 )
+                missing_practice = int(result.weekend.features["PracticeDataMissing"].sum())
+                if missing_practice:
+                    st.warning(
+                        f"{missing_practice} pilot için antrenman verisi alınamadı; "
+                        "tahmin bu veri olmadan üretildi."
+                    )
 
     saved_rounds = [
         number for number in rounds

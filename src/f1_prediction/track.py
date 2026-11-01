@@ -4,9 +4,14 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
+from typing import Callable
 
 import numpy as np
 import pandas as pd
+import requests
+
+
+MULTIVIEWER_CIRCUIT_URL = "https://api.multiviewer.app/api/v1/circuits/{key}/{year}"
 
 
 class TrackDataError(ValueError):
@@ -69,35 +74,73 @@ def _corner_count(corners: pd.DataFrame) -> int | None:
     return int(labels.nunique()) if not labels.empty else None
 
 
-def _telemetry_lap_distance_km(session: object) -> float | None:
+def fetch_multiviewer_circuit(
+    track_id: str,
+    year: int,
+    *,
+    get: Callable[..., requests.Response] = requests.get,
+    timeout: float = 30.0,
+) -> dict[str, object] | None:
+    """Pist çizimini getirir; ulaşılamazsa geometri özellikleri eksik kalır."""
     try:
-        fastest_lap = session.laps.pick_fastest()
-        telemetry = fastest_lap.get_telemetry(frequency="original")
-    except Exception:
+        response = get(
+            MULTIVIEWER_CIRCUIT_URL.format(key=track_id, year=year),
+            headers={"User-Agent": "f1-prediction-v2/1.0"},
+            timeout=timeout,
+        )
+        response.raise_for_status()
+        circuit = response.json()
+    except (requests.RequestException, ValueError):
         return None
-    if telemetry is None or telemetry.empty or "Distance" not in telemetry.columns:
+    return circuit if isinstance(circuit, dict) else None
+
+
+def _circuit_corners(circuit: dict[str, object]) -> pd.DataFrame:
+    corners = pd.DataFrame(circuit.get("corners") or [])
+    return corners.rename(columns={"number": "Number", "letter": "Letter"})
+
+
+def _circuit_length_km(circuit: dict[str, object]) -> float | None:
+    """Pist çizgisinin çevresini hesaplar; koordinatlar metrenin onda biridir."""
+    x = pd.to_numeric(pd.Series(circuit.get("x") or [], dtype=float), errors="coerce")
+    y = pd.to_numeric(pd.Series(circuit.get("y") or [], dtype=float), errors="coerce")
+    if len(x) < 2 or len(x) != len(y) or x.isna().any() or y.isna().any():
         return None
-    distance = pd.to_numeric(telemetry["Distance"], errors="coerce")
-    if distance.notna().sum() < 2:
-        return None
-    length_km = float(distance.max() - distance.min()) / 1000
+    closed_x = np.append(x.to_numpy(), x.iloc[0])
+    closed_y = np.append(y.to_numpy(), y.iloc[0])
+    length_km = float(np.hypot(np.diff(closed_x), np.diff(closed_y)).sum()) / 10_000
     if not 1.0 <= length_km <= 10.0:
         return None
     return length_km
 
 
-def build_track_geometry_features(session: object) -> dict[str, object]:
-    """Qualifying seansından pist kimliği, yaklaşık mesafe ve viraj sayısı üretir."""
-    track_id, track_name = _session_circuit_identity(session)
-    try:
-        circuit_info = session.get_circuit_info()
-    except Exception:
-        circuit_info = None
-
-    corner_count = (
-        _corner_count(circuit_info.corners) if circuit_info is not None else None
+def track_identity_from_history(
+    history: pd.DataFrame, event_name: str
+) -> tuple[str, str] | None:
+    """Aynı etkinliğin önceki kaydından pist kimliğini bulur."""
+    required = {"EventName", "TrackId", "TrackName"}
+    if history.empty or not required.issubset(history.columns):
+        return None
+    rows = history[history["EventName"].astype(str) == event_name].dropna(
+        subset=["TrackId", "TrackName"]
     )
-    length_km = _telemetry_lap_distance_km(session)
+    if rows.empty:
+        return None
+    latest = rows.iloc[-1]
+    return str(latest["TrackId"]), str(latest["TrackName"])
+
+
+def build_track_geometry_features(
+    track_id: str,
+    track_name: str,
+    *,
+    year: int,
+    circuit_getter: Callable[..., dict[str, object] | None] = fetch_multiviewer_circuit,
+) -> dict[str, object]:
+    """Pist kimliği ve MultiViewer çiziminden yaklaşık mesafe ve viraj sayısı üretir."""
+    circuit = circuit_getter(track_id, year)
+    corner_count = _corner_count(_circuit_corners(circuit)) if circuit else None
+    length_km = _circuit_length_km(circuit) if circuit else None
     if length_km is not None and corner_count is not None:
         quality = "USABLE"
     elif length_km is not None or corner_count is not None:
@@ -118,7 +161,7 @@ def build_track_geometry_features(session: object) -> dict[str, object]:
         ),
         "TrackGeometryDataQuality": quality,
         "TrackGeometryDataMissing": quality == "MISSING",
-        "TrackGeometrySource": "FASTF1_MULTIVIEWER_AND_QUALIFYING_TELEMETRY",
+        "TrackGeometrySource": "OPENF1_AND_MULTIVIEWER",
     }
 
 

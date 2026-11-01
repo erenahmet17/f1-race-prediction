@@ -24,6 +24,6 @@ Arayüzde dört bölüm bulunur:
   başlamadan yayımlanmış ve final yarış sonucunun hazır olması gerekir.
 
 Arayüz yerel çalışır. Sunucuya veya internete yayımlanmış bir site değildir.
-Yeni tahmin üretirken FastF1 ve FIA verilerine erişebilmek için internet gerekebilir;
-önceden indirilen oturum verileri proje önbelleğinden kullanılır. Kaydedilmiş bir
-yarış öncesi tahmin dosyası yeniden yazılmaz.
+Yeni tahmin üretirken OpenF1, Jolpica ve FIA verilerine erişmek için internet gerekir.
+OpenF1'e ulaşılamazsa tahmin antrenman verisi olmadan üretilir ve arayüz bunu uyarır.
+Kaydedilmiş bir yarış öncesi tahmin dosyası yeniden yazılmaz.

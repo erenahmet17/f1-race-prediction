@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
@@ -11,40 +10,23 @@ from f1_prediction.track import (
     build_track_geometry_features,
     build_track_history_features,
     load_available_track_history,
+    track_identity_from_history,
 )
 
 
-class FakeLap:
-    def get_telemetry(self, frequency: str) -> pd.DataFrame:
-        assert frequency == "original"
-        return pd.DataFrame({"Distance": [0.0, 2500.0, 5000.0]})
-
-
-class FakeLaps:
-    def pick_fastest(self) -> FakeLap:
-        return FakeLap()
-
-
-@dataclass
-class FakeCircuitInfo:
-    corners: pd.DataFrame
-
-
-class FakeSession:
-    session_info = {
-        "Meeting": {"Circuit": {"Key": 99, "ShortName": "Example Circuit"}}
+def fake_circuit(track_id: str, year: int) -> dict[str, object]:
+    # 1250 metre kenarlı kare: çevresi 5 km, koordinat birimi metrenin onda biri.
+    return {
+        "x": [0, 12500, 12500, 0],
+        "y": [0, 0, 12500, 12500],
+        "corners": [{"number": number, "letter": ""} for number in range(1, 11)],
     }
-    laps = FakeLaps()
 
-    def get_circuit_info(self) -> FakeCircuitInfo:
-        return FakeCircuitInfo(
-            pd.DataFrame(
-                {
-                    "Number": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-                    "Letter": [""] * 10,
-                }
-            )
-        )
+
+def geometry_features() -> dict[str, object]:
+    return build_track_geometry_features(
+        "99", "Example Circuit", year=2026, circuit_getter=fake_circuit
+    )
 
 
 def history() -> pd.DataFrame:
@@ -72,15 +54,58 @@ def history() -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def test_geometry_uses_telemetry_distance_and_corner_markers() -> None:
-    features = build_track_geometry_features(FakeSession())
+def test_geometry_uses_circuit_outline_distance_and_corner_markers() -> None:
+    features = geometry_features()
 
     assert features["TrackId"] == "99"
+    assert features["TrackName"] == "Example Circuit"
     assert features["TrackLapDistanceKm"] == 5.0
     assert features["TrackLapDistanceApproximate"]
     assert features["TrackCornerCount"] == 10
     assert features["TrackCornersPerKm"] == 2.0
     assert features["TrackGeometryDataQuality"] == "USABLE"
+
+
+def test_geometry_is_marked_missing_when_circuit_is_unavailable() -> None:
+    features = build_track_geometry_features(
+        "99", "Example Circuit", year=2026, circuit_getter=lambda *_: None
+    )
+
+    assert features["TrackId"] == "99"
+    assert features["TrackLapDistanceKm"] is None
+    assert features["TrackCornerCount"] is None
+    assert features["TrackGeometryDataQuality"] == "MISSING"
+    assert features["TrackGeometryDataMissing"]
+
+
+def test_implausible_circuit_length_is_ignored() -> None:
+    def tiny_circuit(track_id: str, year: int) -> dict[str, object]:
+        return {**fake_circuit(track_id, year), "x": [0, 1], "y": [0, 1]}
+
+    features = build_track_geometry_features(
+        "99", "Example Circuit", year=2026, circuit_getter=tiny_circuit
+    )
+
+    assert features["TrackLapDistanceKm"] is None
+    assert features["TrackCornerCount"] == 10
+    assert features["TrackGeometryDataQuality"] == "PARTIAL"
+
+
+def test_track_identity_comes_from_latest_record_of_same_event() -> None:
+    rows = pd.DataFrame(
+        {
+            "EventName": ["Example Grand Prix", "Other Grand Prix", "Example Grand Prix"],
+            "TrackId": [98, 22, 99],
+            "TrackName": ["Old Circuit", "Other", "Example Circuit"],
+        }
+    )
+
+    assert track_identity_from_history(rows, "Example Grand Prix") == (
+        "99",
+        "Example Circuit",
+    )
+    assert track_identity_from_history(rows, "New Grand Prix") is None
+    assert track_identity_from_history(pd.DataFrame(), "Example Grand Prix") is None
 
 
 def test_track_history_excludes_target_and_future_rounds() -> None:
@@ -147,7 +172,7 @@ def test_unknown_track_returns_explicit_missing_profile() -> None:
 
 def test_attach_track_features_repeats_only_event_level_values() -> None:
     weekend = pd.DataFrame({"DriverId": ["aaa", "bbb"]})
-    geometry = build_track_geometry_features(FakeSession())
+    geometry = geometry_features()
 
     result = attach_track_features(
         weekend,

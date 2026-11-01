@@ -34,6 +34,13 @@ def normalize_fastf1_driver_ids(results: pd.DataFrame) -> pd.DataFrame:
     invalid_abbreviations = (
         abbreviations.isna() | abbreviations.str.lower().isin(_INVALID_TEXT)
     )
+    if "LastName" in normalized.columns:
+        # Jolpica yedek pilotların kodunu boş bırakabiliyor; F1 kodu soyadından gelir.
+        surnames = normalized["LastName"].astype("string").str.strip().str[:3].str.upper()
+        abbreviations = abbreviations.mask(invalid_abbreviations, surnames)
+        invalid_abbreviations = (
+            abbreviations.isna() | abbreviations.str.lower().isin(_INVALID_TEXT)
+        )
     if invalid_abbreviations.any():
         raise DriverIdentityError(
             "Abbreviation boş; seanslar arası sabit pilot kimliği üretilemedi"
@@ -46,6 +53,7 @@ def normalize_fastf1_driver_ids(results: pd.DataFrame) -> pd.DataFrame:
             f"Normalize edilmiş pilot kimliği tekrarlanıyor: {', '.join(duplicates)}"
         )
     normalized["DriverId"] = driver_ids
+    normalized["Abbreviation"] = abbreviations.astype(object)
     return normalized
 
 
