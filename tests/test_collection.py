@@ -10,11 +10,12 @@ from f1_prediction.collection import (
     WeekendCollectionError,
     WeekendDataPaths,
     _align_team_names,
+    cache_weekend_laps,
     classify_event_sessions,
     collect_pre_race_weekend,
 )
 from f1_prediction.fia_grid import FiaGridDocument, FiaGridSnapshot
-from f1_prediction.openf1 import LAP_COLUMNS, OpenF1Error, OpenF1Session
+from f1_prediction.openf1 import LAP_COLUMNS, OpenF1Cache, OpenF1Error, OpenF1Session
 from f1_prediction.practice import PracticeFeatures
 
 
@@ -409,6 +410,177 @@ def test_openf1_outage_marks_practice_missing_and_keeps_track_identity(
     assert result.features["PreRaceDataMissing"].all()
     assert result.features["TrackId"].astype(str).eq("99").all()
     assert result.features["TrackName"].eq("Example Circuit").all()
+
+
+def one_lap(driver: str = "AAA") -> pd.DataFrame:
+    return pd.DataFrame(
+        [
+            {
+                "DriverNumber": 1,
+                "Driver": driver,
+                "Team": "One",
+                "LapNumber": 2,
+                "LapTime": pd.Timedelta(seconds=90),
+                "Compound": "SOFT",
+                "TyreLife": 2,
+                "Stint": 1,
+                "PitOutTime": pd.NaT,
+                "PitInTime": pd.NaT,
+                "IsAccurate": True,
+                "Deleted": False,
+                "TrackStatus": "1",
+            }
+        ],
+        columns=list(LAP_COLUMNS),
+    )
+
+
+def test_cached_laps_and_track_survive_openf1_lock(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    patch_builders(monkeypatch)
+    seen: dict[str, int] = {}
+
+    def capture_practice(session_laps, **kwargs):
+        seen.update({code: len(laps) for code, laps in session_laps.items()})
+        return practice_features()
+
+    def locked(*args, **kwargs):
+        raise OpenF1Error("Live F1 session in progress")
+
+    captured_track: list[str] = []
+
+    def capture_geometry(track_id, track_name, *, year):
+        captured_track.extend([track_id, track_name])
+        return {
+            "TrackId": track_id,
+            "TrackName": track_name,
+            "TrackLapDistanceKm": 5.0,
+            "TrackLapDistanceApproximate": True,
+            "TrackCornerCount": 10,
+            "TrackCornersPerKm": 2.0,
+            "TrackGeometryDataQuality": "USABLE",
+            "TrackGeometryDataMissing": False,
+            "TrackGeometrySource": "TEST",
+        }
+
+    monkeypatch.setattr("f1_prediction.collection.build_practice_features", capture_practice)
+    monkeypatch.setattr(
+        "f1_prediction.collection.build_track_geometry_features", capture_geometry
+    )
+    monkeypatch.setattr("f1_prediction.collection.find_openf1_session", locked)
+    paths = WeekendDataPaths.from_project_root(tmp_path)
+    cache = OpenF1Cache.for_round(paths.cache, 2026, 2)
+    for name in ("Practice 1", "Practice 2", "Practice 3"):
+        cache.write_laps(name, one_lap())
+    cache.write_track("99", "Example Circuit")
+    values = event_values(sprint=False)
+
+    collect_pre_race_weekend(
+        2026,
+        2,
+        paths=paths,
+        save=False,
+        event_getter=lambda *_: FakeEvent(values, fake_sessions(values)),
+        cache_enabler=lambda *_: None,
+    )
+
+    assert seen == {"FP1": 1, "FP2": 1, "FP3": 1}
+    assert captured_track == ["99", "Example Circuit"]
+
+
+@pytest.mark.parametrize(
+    ("end_utc", "cached"),
+    [
+        (pd.Timestamp("2000-01-01", tz="UTC"), True),
+        (pd.Timestamp("2099-01-01", tz="UTC"), False),
+        (None, False),
+    ],
+)
+def test_only_finished_sessions_are_cached(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    end_utc: pd.Timestamp | None,
+    cached: bool,
+) -> None:
+    monkeypatch.setattr(
+        "f1_prediction.collection.find_openf1_session",
+        lambda *args, **kwargs: OpenF1Session(1, 99, "Example Circuit", end_utc),
+    )
+    monkeypatch.setattr(
+        "f1_prediction.collection.fetch_openf1_laps", lambda *_: one_lap()
+    )
+    values = event_values(sprint=False)
+    paths = WeekendDataPaths.from_project_root(tmp_path)
+
+    counts = cache_weekend_laps(
+        2026,
+        2,
+        paths=paths,
+        event_getter=lambda *_: FakeEvent(values, fake_sessions(values)),
+        cache_enabler=lambda *_: None,
+    )
+
+    assert counts == {"Practice 1": 1, "Practice 2": 1, "Practice 3": 1}
+    cache = OpenF1Cache.for_round(paths.cache, 2026, 2)
+    assert (cache.read_laps("Practice 1") is not None) == cached
+    assert cache.read_track() == ("99", "Example Circuit")
+
+
+def test_caching_sprint_weekend_skips_qualifying_laps_and_reuses_cache(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    fetched: list[int] = []
+    finished = pd.Timestamp("2000-01-01", tz="UTC")
+    keys = {"Practice 1": 1, "Sprint": 2, "Qualifying": 3}
+    monkeypatch.setattr(
+        "f1_prediction.collection.find_openf1_session",
+        lambda season, name, start: OpenF1Session(keys[name], 99, "Example Circuit", finished),
+    )
+
+    def fetch(session_key: int) -> pd.DataFrame:
+        fetched.append(session_key)
+        return one_lap()
+
+    monkeypatch.setattr("f1_prediction.collection.fetch_openf1_laps", fetch)
+    values = event_values(sprint=True)
+    paths = WeekendDataPaths.from_project_root(tmp_path)
+
+    def run() -> dict[str, int]:
+        return cache_weekend_laps(
+            2026,
+            2,
+            paths=paths,
+            event_getter=lambda *_: FakeEvent(values, fake_sessions(values)),
+            cache_enabler=lambda *_: None,
+        )
+
+    assert run() == {"Practice 1": 1, "Sprint": 1}
+    assert fetched == [1, 2]
+    assert run() == {"Practice 1": 1, "Sprint": 1}
+    assert fetched == [1, 2]
+
+
+def test_locked_openf1_reports_zero_laps_without_failing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def locked(*args, **kwargs):
+        raise OpenF1Error("Live F1 session in progress")
+
+    monkeypatch.setattr("f1_prediction.collection.find_openf1_session", locked)
+    values = event_values(sprint=False)
+    paths = WeekendDataPaths.from_project_root(tmp_path)
+
+    counts = cache_weekend_laps(
+        2026,
+        2,
+        paths=paths,
+        event_getter=lambda *_: FakeEvent(values, fake_sessions(values)),
+        cache_enabler=lambda *_: None,
+    )
+
+    assert counts == {"Practice 1": 0, "Practice 2": 0, "Practice 3": 0}
+    assert OpenF1Cache.for_round(paths.cache, 2026, 2).read_track() is None
 
 
 def test_unknown_track_without_openf1_is_rejected(

@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import json
 import time
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Callable
 
 import pandas as pd
@@ -52,6 +54,63 @@ class OpenF1Session:
     session_key: int
     circuit_key: int
     circuit_name: str
+    end_utc: pd.Timestamp | None = None
+
+    @property
+    def has_ended(self) -> bool:
+        return self.end_utc is not None and pd.Timestamp.now(tz="UTC") > self.end_utc
+
+
+@dataclass(frozen=True)
+class OpenF1Cache:
+    """Bir yarışın turlarını saklar: OpenF1 canlı seans sırasında tüm erişimi kapatır."""
+
+    directory: Path
+
+    @classmethod
+    def for_round(
+        cls, cache_root: Path, season: int, round_number: int
+    ) -> "OpenF1Cache":
+        return cls(Path(cache_root) / "openf1" / str(season) / f"round_{round_number:02d}")
+
+    def _laps_path(self, session_name: str) -> Path:
+        slug = session_name.strip().lower().replace(" ", "_")
+        return self.directory / f"{slug}_laps.csv"
+
+    def read_laps(self, session_name: str) -> pd.DataFrame | None:
+        path = self._laps_path(session_name)
+        if not path.exists():
+            return None
+        laps = pd.read_csv(path, dtype={"TrackStatus": str})
+        laps["LapTime"] = pd.to_timedelta(laps["LapTime"], unit="s")
+        return laps
+
+    def write_laps(self, session_name: str, laps: pd.DataFrame) -> Path:
+        destination = self._laps_path(session_name)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        temporary = destination.with_suffix(".csv.tmp")
+        try:
+            laps.assign(LapTime=laps["LapTime"].dt.total_seconds()).to_csv(
+                temporary, index=False
+            )
+            temporary.replace(destination)
+        finally:
+            temporary.unlink(missing_ok=True)
+        return destination
+
+    def read_track(self) -> tuple[str, str] | None:
+        path = self.directory / "track.json"
+        if not path.exists():
+            return None
+        track = json.loads(path.read_text(encoding="utf-8"))
+        return str(track["TrackId"]), str(track["TrackName"])
+
+    def write_track(self, track_id: str, track_name: str) -> None:
+        self.directory.mkdir(parents=True, exist_ok=True)
+        (self.directory / "track.json").write_text(
+            json.dumps({"TrackId": track_id, "TrackName": track_name}),
+            encoding="utf-8",
+        )
 
 
 def _fetch(
@@ -103,10 +162,12 @@ def find_openf1_session(
             f"OpenF1'de {start_utc} tarihli {session_name} seansı bulunamadı"
         )
     session = sessions.loc[nearest]
+    end_utc = pd.to_datetime(session.get("date_end"), utc=True, errors="coerce")
     return OpenF1Session(
         session_key=int(session["session_key"]),
         circuit_key=int(session["circuit_key"]),
         circuit_name=str(session["circuit_short_name"]),
+        end_utc=None if pd.isna(end_utc) else end_utc,
     )
 
 

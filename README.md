@@ -71,9 +71,13 @@ göre F1 TV Access veya üstü). Proje bu arşive bağlanmaz:
 | Viraj sayısı ve yaklaşık pist uzunluğu | MultiViewer |
 | Yarış takvimi | FastF1 |
 
-OpenF1 ve MultiViewer gayriresmî servislerdir. OpenF1'e ulaşılamazsa tahmin durmaz:
-antrenman ve sprint turu özellikleri `MISSING` işaretlenir, pist kimliği geçmiş
-kayıtlardan alınır. Round 18 tahmini antrenman verisi olmadan üretilmiştir.
+OpenF1 ve MultiViewer gayriresmî servislerdir. OpenF1 canlı seans sırasında geçmiş
+seanslar dahil tüm girişsiz erişimi kapatır (Mexico City yarışından 7 dakika önce
+kapalıydı; kapanmanın ne zaman başladığı bilinmiyor). FIA final gridi yarışa yakın
+çıktığı için turlar önceden `data/cache/openf1/` altına indirilir ve tahmin oradan
+okur. Turlar yoksa ve OpenF1'e ulaşılamazsa tahmin durmaz: antrenman ve sprint turu
+özellikleri `MISSING` işaretlenir, pist kimliği geçmiş kayıtlardan alınır. Round 18
+ve Round 19 tahminleri antrenman verisi olmadan üretilmiştir.
 
 `backfill_track_history.py` hâlâ F1 arşivindeki pist kimliğine bağlıdır ve giriş
 olmadan çalışmaz; 2022–2025 pist kayıtları depoda hazırdır.
@@ -93,21 +97,28 @@ Anaconda varsa onu, yoksa `PATH` üzerindeki Python'u kullanır. Panelin bölüm
 ### Yarış haftası akışı
 
 ```powershell
-# FIA final gridi yayımlandıktan sonra, yarıştan önce: veriyi topla ve tahmin et
-python scripts/predict_race.py 2026 18
+# Sıralama bittikten sonra: antrenman ve sprint turlarını önbelleğe indir
+python scripts/cache_weekend_laps.py 2026 20
+
+# FIA final gridi yayımlandıktan sonra (yarıştan yaklaşık 1 saat önce): tahmin et
+python scripts/predict_race.py 2026 20
 
 # Yarış bittikten ve FIA final sınıflandırması yayımlandıktan sonra
-python scripts/collect_result.py 2026 18
+python scripts/collect_result.py 2026 20
 
 # Modelleri sezon geçmişi üzerinde yeniden karşılaştır
 python scripts/backtest_models.py 2026
 ```
+
+Tahmin birkaç dakika sürer (son ölçüm 6 dakikadan uzun), bu yüzden yarışa yakın
+başlatmayın. Panelde aynı iki adım "Yeni tahmin" sekmesindeki düğmelerdedir.
 
 Diğer betikler:
 
 | Betik | Ne yapar |
 |-------|----------|
 | `scripts/collect_weekend.py <sezon> <round>` | Yalnız yarış öncesi özellik tablosunu toplar |
+| `scripts/cache_weekend_laps.py <sezon> <round>` | Antrenman ve sprint turlarını önbelleğe indirir |
 | `scripts/backfill_training_history.py <sezon> <son_round>` | Sezonun tamamlanan roundlarını sırayla eğitim geçmişine ekler |
 | `scripts/backfill_track_history.py <ilk_sezon> [son_sezon]` | Eski sezonlardan pist karakteri verisi toplar |
 

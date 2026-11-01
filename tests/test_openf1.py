@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from types import SimpleNamespace
 
 import pandas as pd
@@ -8,7 +9,9 @@ import requests
 
 from f1_prediction.openf1 import (
     LAP_COLUMNS,
+    OpenF1Cache,
     OpenF1Error,
+    OpenF1Session,
     _fetch,
     build_fastf1_style_laps,
     find_openf1_session,
@@ -310,3 +313,65 @@ def test_session_outside_date_tolerance_is_rejected() -> None:
 def test_session_without_known_start_is_rejected() -> None:
     with pytest.raises(OpenF1Error, match="başlangıç saati"):
         find_openf1_session(2026, "Practice 1", None, get=sessions_response)
+
+
+def test_session_knows_whether_it_has_ended() -> None:
+    past = pd.Timestamp("2000-01-01", tz="UTC")
+    future = pd.Timestamp("2099-01-01", tz="UTC")
+
+    assert OpenF1Session(1, 2, "A", past).has_ended
+    assert not OpenF1Session(1, 2, "A", future).has_ended
+    assert not OpenF1Session(1, 2, "A").has_ended
+
+
+def test_session_end_is_read_from_openf1() -> None:
+    def with_end(*args, **kwargs) -> SimpleNamespace:
+        return response(
+            200,
+            [
+                {
+                    "session_key": 2,
+                    "circuit_key": 63,
+                    "circuit_short_name": "Sakhir",
+                    "date_start": "2026-10-02T08:00:00+00:00",
+                    "date_end": "2026-10-02T09:00:00+00:00",
+                }
+            ],
+        )
+
+    session = find_openf1_session(
+        2026, "Practice 1", pd.Timestamp("2026-10-02T08:00:00Z"), get=with_end
+    )
+
+    assert session.end_utc == pd.Timestamp("2026-10-02T09:00:00Z")
+
+
+def test_cached_laps_match_the_original_after_a_round_trip(tmp_path: Path) -> None:
+    race_control = pd.DataFrame([flag("10:02:00", "YELLOW", "Sector", 4.0)])
+    laps = build_fastf1_style_laps(
+        laps_table(), stints_table(), drivers_table(), race_control
+    )
+    cache = OpenF1Cache.for_round(tmp_path, 2026, 19)
+
+    assert cache.read_laps("Practice 1") is None
+    path = cache.write_laps("Practice 1", laps)
+    restored = cache.read_laps("Practice 1")
+
+    assert path == tmp_path / "openf1" / "2026" / "round_19" / "practice_1_laps.csv"
+    assert not path.with_suffix(".csv.tmp").exists()
+    assert list(restored.columns) == list(laps.columns)
+    pd.testing.assert_series_equal(restored["LapTime"], laps["LapTime"])
+    assert restored["TrackStatus"].tolist() == laps["TrackStatus"].tolist()
+    assert restored["TrackStatus"].map(type).eq(str).all()
+    assert restored["IsAccurate"].tolist() == laps["IsAccurate"].tolist()
+    assert restored["PitInTime"].isna().tolist() == laps["PitInTime"].isna().tolist()
+    assert restored["TyreLife"].tolist() == laps["TyreLife"].tolist()
+
+
+def test_cache_keeps_track_identity(tmp_path: Path) -> None:
+    cache = OpenF1Cache.for_round(tmp_path, 2026, 19)
+
+    assert cache.read_track() is None
+    cache.write_track("65", "Mexico City")
+
+    assert cache.read_track() == ("65", "Mexico City")

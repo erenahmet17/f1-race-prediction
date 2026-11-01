@@ -15,6 +15,7 @@ from .fia_grid import FiaGridSnapshot, fetch_fia_final_grid
 from .identity import normalize_fastf1_driver_ids, normalize_team_names
 from .openf1 import (
     LAP_COLUMNS,
+    OpenF1Cache,
     OpenF1Error,
     OpenF1Session,
     fetch_openf1_laps,
@@ -154,17 +155,26 @@ def _find_session(
         return None
 
 
-def _session_laps(event: object, session_name: str, season: int) -> pd.DataFrame:
-    """Turları OpenF1'den alır; ulaşılamazsa özellikler MISSING işaretlenir."""
+def _session_laps(
+    event: object, session_name: str, season: int, cache: OpenF1Cache
+) -> pd.DataFrame:
+    """Turları önbellekten veya OpenF1'den alır; yoksa özellikler MISSING işaretlenir."""
+    cached = cache.read_laps(session_name)
+    if cached is not None:
+        return cached
     empty = pd.DataFrame(columns=list(LAP_COLUMNS))
     session = _find_session(event, session_name, season)
     if session is None:
         return empty
     try:
-        return fetch_openf1_laps(session.session_key)
+        laps = fetch_openf1_laps(session.session_key)
     except OpenF1Error as exc:
         _logger.warning("%s turları alınamadı: %s", session_name, exc)
         return empty
+    # Süren seansın eksik turları kalıcı olmasın.
+    if session.has_ended:
+        cache.write_laps(session_name, laps)
+    return laps
 
 
 def _track_identity(
@@ -173,9 +183,14 @@ def _track_identity(
     season: int,
     event_name: str,
     track_history: pd.DataFrame,
+    cache: OpenF1Cache,
 ) -> tuple[str, str]:
+    cached = cache.read_track()
+    if cached is not None:
+        return cached
     session = _find_session(event, session_name, season)
     if session is not None:
+        cache.write_track(str(session.circuit_key), session.circuit_name)
         return str(session.circuit_key), session.circuit_name
     identity = track_identity_from_history(track_history, event_name)
     if identity is None:
@@ -249,6 +264,35 @@ def write_weekend_features(
     return destination
 
 
+def cache_weekend_laps(
+    season: int,
+    round_number: int,
+    *,
+    paths: WeekendDataPaths,
+    event_getter: Callable[[int, int], object] = fastf1.get_event,
+    cache_enabler: Callable[[str], None] = fastf1.Cache.enable_cache,
+) -> dict[str, int]:
+    """Antrenman ve sprint turlarını OpenF1 yarış öncesi kapanmadan önce saklar."""
+    paths.ensure()
+    cache_enabler(str(paths.cache))
+    try:
+        event = event_getter(season, round_number)
+    except Exception as exc:
+        raise WeekendCollectionError(
+            f"{season} sezonu {round_number}. round takvimde bulunamadı: {exc}"
+        ) from exc
+    sessions = classify_event_sessions(event)
+    cache = OpenF1Cache.for_round(paths.cache, season, round_number)
+    names = (*sessions.practice, *((sessions.sprint,) if sessions.sprint else ()))
+    lap_counts = {
+        name: len(_session_laps(event, name, season, cache)) for name in names
+    }
+    qualifying = _find_session(event, sessions.qualifying, season)
+    if qualifying is not None:
+        cache.write_track(str(qualifying.circuit_key), qualifying.circuit_name)
+    return lap_counts
+
+
 def collect_pre_race_weekend(
     season: int,
     round_number: int,
@@ -281,6 +325,7 @@ def collect_pre_race_weekend(
         raise WeekendCollectionError("Takvim round numarası istekle uyuşmuyor")
 
     sessions = classify_event_sessions(event)
+    cache = OpenF1Cache.for_round(paths.cache, season, round_number)
     race_start_utc: pd.Timestamp | None = None
     for session_index in range(1, 6):
         if str(event.get(f"Session{session_index}", "")).strip().lower() == "race":
@@ -295,7 +340,7 @@ def collect_pre_race_weekend(
     practice_laps: dict[str, pd.DataFrame] = {}
     for index, session_name in enumerate(sessions.practice, start=1):
         practice_laps[_practice_code(session_name, index)] = _session_laps(
-            event, session_name, season
+            event, session_name, season, cache
         )
     sprint_session: object | None = None
     if sessions.sprint is not None:
@@ -325,7 +370,7 @@ def collect_pre_race_weekend(
     if sprint_session is not None:
         sprint_features = build_sprint_features(
             _align_team_names(
-                _session_laps(event, sessions.sprint, season),
+                _session_laps(event, sessions.sprint, season, cache),
                 qualifying_results,
                 driver_column="Driver",
                 team_column="Team",
@@ -363,7 +408,7 @@ def collect_pre_race_weekend(
         target_round=round_number,
     )
     track_id, track_name = _track_identity(
-        event, sessions.qualifying, season, event_name, track_history
+        event, sessions.qualifying, season, event_name, track_history, cache
     )
     geometry = build_track_geometry_features(track_id, track_name, year=season)
     features = attach_track_features(

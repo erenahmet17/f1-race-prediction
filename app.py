@@ -12,7 +12,7 @@ import streamlit as st
 PROJECT_ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
-from f1_prediction.collection import WeekendDataPaths  # noqa: E402
+from f1_prediction.collection import WeekendDataPaths, cache_weekend_laps  # noqa: E402
 from f1_prediction.dashboard import (  # noqa: E402
     available_rounds,
     available_seasons,
@@ -302,7 +302,8 @@ with predict_tab:
     next_round = max(completed, default=1) + 1
     st.caption(
         "Practice, sprint, ana sıralama ve FIA final grid açıklandıktan sonra çalıştırın. "
-        "Yeni kayıt yalnız yarış başlamadan önce oluşturulur."
+        "Yeni kayıt yalnız yarış başlamadan önce oluşturulur. OpenF1 canlı seans sırasında "
+        "kapalı olduğu için turları sıralamadan sonra önceden indirin."
     )
     with st.form("prediction_form"):
         target_round = st.number_input(
@@ -310,6 +311,24 @@ with predict_tab:
             value=max(2, next_round), step=1,
         )
         submitted = st.form_submit_button("🏎️ Tahmini oluştur", type="primary")
+        cache_submitted = st.form_submit_button("💾 Turları önceden indir")
+    if cache_submitted:
+        with st.spinner("Antrenman ve sprint turları indiriliyor..."):
+            try:
+                lap_counts = cache_weekend_laps(season, int(target_round), paths=paths)
+            except Exception as exc:
+                st.error(f"Turlar indirilemedi: {exc}")
+            else:
+                lap_summary = " · ".join(
+                    f"{name}: {count} tur" for name, count in lap_counts.items()
+                )
+                if all(lap_counts.values()):
+                    st.success(lap_summary)
+                else:
+                    st.warning(
+                        f"{lap_summary}. Eksik seanslar henüz bitmemiş veya OpenF1 canlı "
+                        "seans nedeniyle kapalı olabilir; sonra yeniden deneyin."
+                    )
     if submitted:
         with st.spinner("Hafta sonu verileri yükleniyor ve model eğitiliyor..."):
             try:

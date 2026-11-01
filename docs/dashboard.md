@@ -16,7 +16,9 @@ Arayüzde dört bölüm bulunur:
   gerçek yarış öncesi tahmin varsa o gösterilir. Yoksa geriye dönük test tahmini
   açıkça bu adla gösterilir.
 - **Yeni tahmin:** FIA final grid yayımlandıktan ve yarış başlamadan önce yeni
-  tahmini üretip `data/processed/predictions/<sezon>/` altına kaydeder.
+  tahmini üretip `data/processed/predictions/<sezon>/` altına kaydeder. OpenF1 canlı
+  seans sırasında kapalı olduğu için **Turları önceden indir** düğmesine sıralamadan
+  sonra basın.
 - **Geriye dönük:** Kaçırılan yarışın önceki roundlarını gerekirse indirir,
   yarış öncesi verileriyle ayrı bir tahmin oluşturur, resmî sonucu çekip MAE ve
   CleanMAE gösterir. Çıktı `data/processed/retrospectives/<sezon>/` altında
@@ -25,5 +27,6 @@ Arayüzde dört bölüm bulunur:
 
 Arayüz yerel çalışır. Sunucuya veya internete yayımlanmış bir site değildir.
 Yeni tahmin üretirken OpenF1, Jolpica ve FIA verilerine erişmek için internet gerekir.
-OpenF1'e ulaşılamazsa tahmin antrenman verisi olmadan üretilir ve arayüz bunu uyarır.
+Turlar önbellekte yoksa ve OpenF1'e ulaşılamazsa tahmin antrenman verisi olmadan
+üretilir ve arayüz bunu uyarır.
 Kaydedilmiş bir yarış öncesi tahmin dosyası yeniden yazılmaz.
