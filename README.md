@@ -24,17 +24,17 @@ CatBoostGridDelta modelleri de aynı backtest'te çalışır.
 
 ### 2026 walk-forward backtest
 
-Her round yalnız kendisinden önceki roundlarla eğitilir (round 5–14, 220 pilot
+Her round yalnız kendisinden önceki roundlarla eğitilir (round 5–18, 308 pilot
 satırı). MAE tahmin edilen ve gerçek bitiş sırası arasındaki ortalama mutlak
 farktır; CleanMAE yalnız yarışı tamamlayan pilotları sayar.
 
 | Model              |  MAE | CleanMAE |
 |--------------------|-----:|---------:|
-| PenaltyAwareHybrid | 3.09 |     2.51 |
-| CatBoostGridDelta  | 3.21 |     2.63 |
-| Grid               | 3.22 |     2.62 |
-| CatBoostRanker     | 3.35 |     2.76 |
-| Ridge              | 3.45 |     2.83 |
+| PenaltyAwareHybrid | 3.10 |     2.59 |
+| CatBoostRanker     | 3.25 |     2.71 |
+| CatBoostGridDelta  | 3.29 |     2.76 |
+| Grid               | 3.29 |     2.75 |
+| Ridge              | 3.44 |     2.89 |
 
 Bu sonuçlar geriye dönük testtir, canlı tahmin kaydı değildir.
 
@@ -59,6 +59,17 @@ python -m pip install -r requirements.txt
 FastF1 önbelleği (`data/cache/`) depoda yoktur; gereken oturumlar ilk
 çalıştırmada indirilir. Veri toplamak için internet bağlantısı gerekir.
 
+### Veri erişimi
+
+Formula 1, Ekim 2026'dan beri zamanlama arşivine giriş şartı koyuyor (FastF1'e
+göre F1 TV Access veya üstü). Projedeki FastF1 3.8.3 bu girişi desteklemediği için
+yeni hafta sonlarının antrenman ve tur verisi alınamıyor; `predict_race.py`,
+`collect_weekend.py` ve panelin yeni tahmin ile geriye dönük düğmeleri hata verir.
+
+Kayıtlı yarış öncesi tablosu olan yarışlarda `collect_result.py` giriş gerektirmez:
+sonuç Jolpica ve FIA belgelerinden gelir. Round 18 tahmini antrenman verisi olmadan
+üretilmiştir.
+
 ## Kullanım
 
 ### Panel
@@ -67,8 +78,8 @@ FastF1 önbelleği (`data/cache/`) depoda yoktur; gereken oturumlar ilk
 python -m streamlit run app.py
 ```
 
-Windows'ta `PITWALL_Baslat.cmd` aynı komutu çalıştırır (içindeki Python yolu
-kendi kurulumunuza göre değiştirilmelidir). Panelin bölümleri
+Windows'ta `PITWALL_Baslat.cmd` aynı komutu çalıştırır; kullanıcı klasöründe
+Anaconda varsa onu, yoksa `PATH` üzerindeki Python'u kullanır. Panelin bölümleri
 [docs/dashboard.md](docs/dashboard.md) dosyasında anlatılır.
 
 ### Yarış haftası akışı
