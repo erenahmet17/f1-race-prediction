@@ -23,17 +23,17 @@ CatBoostGridDelta modelleri de aynı backtest'te çalışır.
 
 ### 2026 walk-forward backtest
 
-Her round yalnız kendisinden önceki roundlarla eğitilir (round 5–18, 308 pilot
+Her round yalnız kendisinden önceki roundlarla eğitilir (round 5–19, 330 pilot
 satırı). MAE tahmin edilen ve gerçek bitiş sırası arasındaki ortalama mutlak
 farktır; CleanMAE yalnız yarışı tamamlayan pilotları sayar.
 
 | Model              |  MAE | CleanMAE |
 |--------------------|-----:|---------:|
-| PenaltyAwareHybrid | 3.10 |     2.59 |
-| CatBoostRanker     | 3.25 |     2.71 |
-| CatBoostGridDelta  | 3.29 |     2.76 |
-| Grid               | 3.29 |     2.75 |
-| Ridge              | 3.44 |     2.89 |
+| PenaltyAwareHybrid | 3.14 |     2.66 |
+| CatBoostRanker     | 3.25 |     2.76 |
+| CatBoostGridDelta  | 3.34 |     2.84 |
+| Grid               | 3.35 |     2.84 |
+| Ridge              | 3.44 |     2.94 |
 
 Bu sonuçlar geriye dönük testtir, canlı tahmin kaydı değildir.
 
