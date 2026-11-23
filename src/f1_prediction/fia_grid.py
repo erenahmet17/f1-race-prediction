@@ -243,8 +243,9 @@ def parse_penalty_notes(text: str) -> pd.DataFrame:
     records: list[dict[str, object]] = []
     for cars, reason in raw_records:
         normalized = _normal_text(reason)
+        # FIA birden fazla ceza tek satırda toplanınca "PENALTIES" yazıyor.
         position_match = re.search(
-            r"\b(\d{1,2})\s+(?:PLACE|POSITION)\s+GRID\s+PENALTY\b",
+            r"\b(\d{1,2})\s+(?:PLACE|POSITION)\s+GRID\s+PENALT(?:Y|IES)\b",
             normalized,
         )
         positions = int(position_match.group(1)) if position_match else pd.NA
@@ -262,7 +263,7 @@ def parse_penalty_notes(text: str) -> pd.DataFrame:
         pit_lane = "PIT LANE" in normalized
         permission = "PERMITTED TO START" in normalized
         applied = bool(
-            "PENALTY" in normalized
+            re.search(r"\bPENALT(?:Y|IES)\b", normalized)
             or pit_lane
             or "BACK OF THE GRID" in normalized
         )

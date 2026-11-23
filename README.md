@@ -29,10 +29,10 @@ farktır; CleanMAE yalnız yarışı tamamlayan pilotları sayar.
 
 | Model              |  MAE | CleanMAE |
 |--------------------|-----:|---------:|
-| CatBoostRanker     | 3.26 |     2.82 |
-| PenaltyAwareHybrid | 3.29 |     2.87 |
-| Ridge              | 3.48 |     3.01 |
-| CatBoostGridDelta  | 3.49 |     3.06 |
+| PenaltyAwareHybrid | 3.18 |     2.76 |
+| CatBoostRanker     | 3.26 |     2.84 |
+| CatBoostGridDelta  | 3.47 |     3.05 |
+| Ridge              | 3.49 |     3.03 |
 | Grid               | 3.57 |     3.12 |
 
 Bu sonuçlar geriye dönük testtir, canlı tahmin kaydı değildir.

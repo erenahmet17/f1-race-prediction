@@ -119,3 +119,17 @@ def test_fia_penalty_notes_are_classified_by_car() -> None:
     assert notes.loc["14", "GridPenaltyReason"] == "MULTIPLE"
     assert bool(notes.loc["87", "GridPermissionToStart"])
     assert not bool(notes.loc["87", "GridPenaltyApplied"])
+
+
+def test_plural_grid_penalties_count_as_applied() -> None:
+    text = """
+    * PENALTIES
+    Car 3 - 30 place grid penalties - Additional power unit elements have been used - Stewards' document nos. 33 & 39
+    Garry Connelly Mathieu Remmerie The Stewards
+    """
+
+    notes = parse_penalty_notes(text).set_index("CarNumber")
+
+    assert bool(notes.loc["3", "GridPenaltyApplied"])
+    assert notes.loc["3", "GridPenaltyPositions"] == 30
+    assert notes.loc["3", "GridPenaltyReason"] == "POWER_UNIT"
